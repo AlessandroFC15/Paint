@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Material Design Bootstrap</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="css/mdb.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        #container {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: darkcyan;
+        }
+
+        .header-title {
+            color: white;
+            padding: 10px;
+            margin: 0;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            flex: 0.13;
+            background-color: white;
+        }
+
+        .grid {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: white;
+            border: 1px grey solid;
+            padding: 0;
+        }
+
+        .list-group-item.active {
+            background-color: darkcyan;
+            border-color: darkcyan;
+        }
+
+        .pixel {
+            flex: 1;
+            border: 1px lightgrey solid;
+            display: inline-block;
+            background-color: white;
+        }
+
+        .row-pixels {
+            flex: 1;
+            margin: 0;
+            display: flex;
+            flex-direction: row;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid" id="container" >
+        <div class="row header">
+            <div class="col text-center">
+                <h4 class="font-weight-bold header-title">Paint</h4>
+            </div>
+        </div>
+
+        <div class="row" style="height: 100%">
+            <div class="menu">
+                <div class="list-group" id="myList" role="tablist" style="flex: 1">
+                  <a class="list-group-item list-group-item-action active" data-toggle="list" href="#bresenhamInput" role="tab">Bresenham</a>
+                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#circulo" role="tab">Círculo</a>
+                  <!-- <a class="list-group-item list-group-item-action" data-toggle="list" href="#profile" role="tab">Profile</a>
+                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#messages" role="tab">Messages</a>
+                  <a class="list-group-item list-group-item-action" data-toggle="list" href="#settings" role="tab">Settings</a> -->
+                </div>
+
+                <div class="tab-content" style="flex: 0.4; padding: 10px">
+                  <div class="tab-pane active" id="bresenhamInput" role="tabpanel">
+                      <div class="row">
+                          <div class="col-md-6">
+                              <div class="md-form form-sm">
+                                <input type="number" id="x0" class="form-control">
+                                <label for="x0" class="">X0</label>
+                                </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div class="md-form form-sm">
+                                <input type="number" id="y0" class="form-control">
+                                <label for="y0" class="">Y0</label>
+                                </div>
+                          </div>
+                      </div>
+
+                      <div class="row">
+                          <div class="col-md-6">
+                              <div class="md-form form-sm">
+                                <input type="number" id="x1" class="form-control">
+                                <label for="x1" class="">X1</label>
+                                </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div class="md-form form-sm">
+                                <input type="number" id="y1" class="form-control">
+                                <label for="y1" class="">Y1</label>
+                                </div>
+                          </div>
+                      </div>
+
+                      <button type="button" class="btn btn-primary" onclick="bresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">Desenhar</button>
+                  </div>
+                
+                  <div class="tab-pane" id="circulo" role="tabpanel">
+                      <div class="md-form form-sm">
+                        <input type="number" id="x_circulo" class="form-control">
+                        <label for="x_circulo" class="">X</label>
+                        </div>
+
+                        <div class="md-form form-sm">
+                        <input type="number" id="y_circulo" class="form-control">
+                        <label for="y_circulo" class="">Y</label>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="bresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">Desenhar</button>
+                  </div>
+
+                </div>
+            </div>
+
+            <div class="col grid">
+                
+            </div>
+        </div>
+
+        <!-- <div class="flex-center flex-column">
+            <h1 class="animated fadeIn mb-4">Material Design for Bootstrap</h1>
+
+            <h5 class="animated fadeIn mb-3">Thank you for using our product. We're glad you're with us.</h5>
+
+            <p class="animated fadeIn text-muted">MDB Team</p>
+        </div> -->
+    </div>
+
+    <!-- SCRIPTS -->
+    <!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="js/popper.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="js/mdb.min.js"></script>
+
+    <script>
+        function desenhaPonto(x, y) {
+            var pixel = $("#" + x + "_" + y);
+            
+            pixel.css('backgroundColor', "black");
+        }
+    
+        function bresenham (x0, y0, x1, y1) {
+            x0 = Number(x0);
+            y0 = Number(y0);
+            x1 = Number(x1);
+            y1 = Number(y1);
+
+            var x = x0;
+            var y = y0;
+            
+            var deltaX = x1 - x0;
+            var deltaY = y1 - y0;
+            
+            var m = deltaY / deltaX;
+            
+            var e = m - 1/2;
+            
+            desenhaPonto(x, y);
+            
+            for (var x = x0 + 1; x <= x1; x++) {
+                console.log(x);
+
+                if (e >= 0) {
+                    y += 1;
+                    e -= 1;
+                }
+                
+                e += m;
+                
+                desenhaPonto(x, y);
+            }
+        }
+
+        function drawCanvas() {
+            var numeroQuadradosPorLinha = 20;
+            var canvas = $('.grid');
+
+            for (var i = numeroQuadradosPorLinha - 1; i >= 0; i--) {
+                var row = $("<div>");
+                row.addClass('row row-pixels');
+
+                for (var j = 0; j < numeroQuadradosPorLinha; j++) {
+                    var quadrado = $('<div>');
+                    
+                    quadrado.attr("id", i + "_" + j)
+                    quadrado.addClass("pixel");
+                    quadrado.attr("title", i + ", " + j);
+                
+                    row.append(quadrado);
+                }
+
+                canvas.append(row);
+            }
+        }
+
+        drawCanvas();
+    </script>
+</body>
+
+</html>
