@@ -12,6 +12,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- Material Design Bootstrap -->
     <link href="css/mdb.min.css" rel="stylesheet">
+    <link href="css/compiled.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
 
@@ -28,7 +29,7 @@
         }
 
         .header {
-            background-color: darkcyan;
+            background: linear-gradient(40deg,#45cafc,#303f9f);
         }
 
         .header-title {
@@ -39,25 +40,31 @@
 
         .menu {
             display: flex;
+            background: linear-gradient(40deg,#303f9f, #45cafc);
             flex-direction: column;
             flex: 0.13;
-            background-color: white;
         }
 
         .grid {
+            margin: auto;
+            max-width: 750px;
+            max-height: 575px;
             display: flex;
             flex-direction: column;
             height: 100%;
             background-color: white;
-            border: 1px grey solid;
             padding: 0;
         }
 
-        .list-group-item.active {
-            background-color: darkcyan;
-            border-color: darkcyan;
+        .list-group-item {
+            background-color: transparent;
+            border: none;
+            color: white;
         }
 
+        .list-group-item.active {
+            background-color: #1976d2;
+        }
         .pixel {
             flex: 1;
             border: 1px lightgrey solid;
@@ -71,6 +78,17 @@
             display: flex;
             flex-direction: row;
         }
+
+        .md-form label {
+            color: white;
+        }
+
+        .md-form input {
+            color: white;
+        }
+        .form-control:focus {
+            color: white;
+        }
     </style>
 </head>
 
@@ -83,10 +101,10 @@
         </div>
     </div>
 
-    <div class="row" style="height: 100%">
+    <div class="row" style="height: 100%; background: rgba(211, 211, 211, 0.2)">
         <div class="menu">
-            <div class="list-group" id="myList" role="tablist" style="flex: 1">
-                <a class="list-group-item list-group-item-action active" data-toggle="list" href="#bresenhamInput"
+            <div class="list-group" role="tablist" style="flex: 1">
+                <a class="list-group-item list-group-item-action active" id='bresenham-option' data-toggle="list" href="#bresenhamInput"
                    role="tab">Bresenham</a>
                 <a class="list-group-item list-group-item-action" data-toggle="list" href="#circulo"
                    role="tab">Círculo</a>
@@ -96,7 +114,7 @@
             </div>
 
             <div class="tab-content" style="flex: 0.4; padding: 10px">
-                <div class="tab-pane active" id="bresenhamInput" role="tabpanel">
+                <div class="tab-pane fade show active" id="bresenhamInput" role="tabpanel" aria-labelledby="bresenham-option">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="md-form form-sm">
@@ -128,7 +146,7 @@
                     </div>
 
                     <button type="button" class="btn btn-primary"
-                            onclick="bresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">Desenhar
+                            onclick="interfaceGrafica.drawLineWithBresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">Desenhar
                     </button>
                 </div>
 
@@ -144,7 +162,7 @@
                     </div>
 
                     <button type="button" class="btn btn-primary"
-                            onclick="bresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">
+                            onclick="">
                         Desenhar
                     </button>
                 </div>
@@ -152,9 +170,15 @@
             </div>
         </div>
 
-        <div class="col grid">
+        <div class="col grid card">
 
         </div>
+    </div>
+
+    <div class="fixed-action-btn" style="bottom: 15px; right: 15px;">
+        <a class="btn-floating btn-lg blue" onclick="interfaceGrafica.reset()">
+            <i class="fa fa-eraser"></i>
+        </a>
     </div>
 
     <!-- <div class="flex-center flex-column">
@@ -176,69 +200,8 @@
 <!-- MDB core JavaScript -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
 
-<script>
-    function desenhaPonto(x, y) {
-        var pixel = $("#" + x + "_" + y);
+<script type="text/javascript" src="js/paint.js"></script>
 
-        pixel.css('backgroundColor', "black");
-    }
-
-    function bresenham(x0, y0, x1, y1) {
-        x0 = Number(x0);
-        y0 = Number(y0);
-        x1 = Number(x1);
-        y1 = Number(y1);
-
-        var x = x0;
-        var y = y0;
-
-        var deltaX = x1 - x0;
-        var deltaY = y1 - y0;
-
-        var m = deltaY / deltaX;
-
-        var e = m - 1 / 2;
-
-        desenhaPonto(x, y);
-
-        for (x = x0 + 1; x <= x1; x++) {
-            console.log(x);
-
-            if (e >= 0) {
-                y += 1;
-                e -= 1;
-            }
-
-            e += m;
-
-            desenhaPonto(x, y);
-        }
-    }
-
-    function drawCanvas() {
-        var numeroQuadradosPorLinha = 20;
-        var canvas = $('.grid');
-
-        for (var i = numeroQuadradosPorLinha - 1; i >= 0; i--) {
-            var row = $("<div>");
-            row.addClass('row row-pixels');
-
-            for (var j = 0; j < numeroQuadradosPorLinha; j++) {
-                var quadrado = $('<div>');
-
-                quadrado.attr("id", i + "_" + j)
-                quadrado.addClass("pixel");
-                quadrado.attr("title", i + ", " + j);
-
-                row.append(quadrado);
-            }
-
-            canvas.append(row);
-        }
-    }
-
-    drawCanvas();
-</script>
 </body>
 
 </html>
