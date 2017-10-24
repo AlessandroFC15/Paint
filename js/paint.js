@@ -10,7 +10,9 @@ class InterfaceGrafica {
     }
 
     desenharPonto(x, y) {
-        this.frameBuffer.setPixel(x, y, "#64b5f6")
+    	if (x >= 0 && y >= 0) {
+        	this.frameBuffer.setPixel(x, y, "#64b5f6")
+    	}
     }
 
     desenharCanvasInicial() {
@@ -32,7 +34,7 @@ class InterfaceGrafica {
         }
     }
 
-    drawLineWithBresenham(x0, y0, x1, y1) {
+    desenharLinhaBresenham(x0, y0, x1, y1) {
         x0 = Number(x0);
         y0 = Number(y0);
         x1 = Number(x1);
@@ -131,12 +133,98 @@ class InterfaceGrafica {
         this.draw();
     }
 
+    desenharCirculo(inputX, inputY, raio) {
+    	console.log('desenharCirculo');
+
+    	inputX = Number(inputX);
+    	inputY = Number(inputY);
+    	raio = Number(raio);
+
+    	// Desloca o centro para (0, 0)
+    	var x, y;
+
+    	var pixelsToDraw = [];
+    	var pixelsPrimeiroOctante = []
+
+    	x = 0;
+
+    	y = raio;
+
+    	var p = 1 - raio;
+
+    	pixelsPrimeiroOctante.push([x, y]);
+
+    	// this.desenharPonto(x, y);
+
+    	while (x < y) {
+    		x++;
+
+    		if (p < 0) {
+    			p += (2*x) + 3
+    		} else {
+    			y--;
+    			p += (2*x) - (2*y) + 5 
+    		}
+
+    		// this.desenharPonto(x, y);
+
+    		pixelsPrimeiroOctante.push([x, y]);
+
+    	}
+
+    	var pixelsToDraw = pixelsPrimeiroOctante.slice();
+
+    	for (var i = 0; i < pixelsPrimeiroOctante.length; i++) {
+    		var pixelX = pixelsPrimeiroOctante[i][0];
+    		var pixelY = pixelsPrimeiroOctante[i][1];
+
+    		pixelsToDraw.push([pixelX, pixelY]);
+
+    		// -x y
+    		pixelsToDraw.push([-pixelX, pixelY]);
+
+    		// x -y
+    		pixelsToDraw.push([pixelX, -pixelY]);
+
+    		// -x -y
+    		pixelsToDraw.push([-pixelX, -pixelY]);
+
+
+			// y x
+    		pixelsToDraw.push([pixelY, pixelX]);
+
+			// -y x
+    		pixelsToDraw.push([-pixelY, pixelX]);
+
+			// Y -x
+    		pixelsToDraw.push([pixelY, -pixelX]);
+
+			// -y -x
+    		pixelsToDraw.push([-pixelY, -pixelX]);
+    	}
+
+    	for (var i = 0; i < pixelsToDraw.length; i++) {
+    		var [elemento_x, elemento_y] = pixelsToDraw[i];
+
+    		elemento_x += inputX;
+    		elemento_y += inputY;
+
+            this.desenharPonto(elemento_x, elemento_y);
+    	}
+
+    	this.draw();
+    }
+
+
     draw() {
         for (var i = 0; i < this.numeroQuadradosPorLinha; i++) {
             for (var j = 0; j < this.numeroQuadradosPorLinha; j++) {
-                var pixel = document.getElementById(i + "_" + j);
+                // var pixel = document.getElementById(i + "_" + j);
+                $("#" + i + "_" + j).animate({
+				    backgroundColor: this.frameBuffer.getPixel(i, j)
+				  }, 1500);
 
-                pixel.style.backgroundColor = this.frameBuffer.getPixel(i, j)
+                // pixel.style.backgroundColor = this.frameBuffer.getPixel(i, j)
             }
         }
     }

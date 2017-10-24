@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Material Design Bootstrap</title>
+    <title>Paint | Computação Gráfica</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Bootstrap core CSS -->
@@ -96,7 +96,10 @@
 
 <div class="container-fluid" id="container">
     <div class="row header">
-        <div class="col text-center">
+        <div class="col-md-1">
+        </div>
+
+        <div class="col-md-11 text-center">
             <h4 class="font-weight-bold header-title">Paint</h4>
         </div>
     </div>
@@ -146,7 +149,7 @@
                     </div>
 
                     <button type="button" class="btn btn-primary"
-                            onclick="interfaceGrafica.drawLineWithBresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">Desenhar
+                            onclick="interfaceGrafica.desenharLinhaBresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">Desenhar
                     </button>
                 </div>
 
@@ -161,8 +164,13 @@
                         <label for="y_circulo" class="">Y</label>
                     </div>
 
+                    <div class="md-form form-sm">
+                        <input type="number" id="raio_circulo" class="form-control">
+                        <label for="y_circulo" class="">Raio</label>
+                    </div>
+
                     <button type="button" class="btn btn-primary"
-                            onclick="">
+                            onclick="interfaceGrafica.desenharCirculo($('#x_circulo').val(), $('#y_circulo').val(), $('#raio_circulo').val())">
                         Desenhar
                     </button>
                 </div>
@@ -193,6 +201,9 @@
 <!-- SCRIPTS -->
 <!-- JQuery -->
 <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
 <!-- Bootstrap tooltips -->
 <script type="text/javascript" src="js/popper.min.js"></script>
 <!-- Bootstrap core JavaScript -->
