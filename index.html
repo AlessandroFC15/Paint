@@ -70,6 +70,7 @@
             border: 1px lightgrey solid;
             display: inline-block;
             background-color: white;
+            cursor: pointer;
         }
 
         .row-pixels {
@@ -107,10 +108,15 @@
     <div class="row" style="height: 100%; background: rgba(211, 211, 211, 0.2)">
         <div class="menu">
             <div class="list-group" role="tablist" style="flex: 1">
-                <a class="list-group-item list-group-item-action active" id='bresenham-option' data-toggle="list" href="#bresenhamInput"
+                <a class="list-group-item list-group-item-action active" id='bresenham-option'
+                   onclick="interfaceGrafica.ativarTela('bresenham');" data-toggle="list" href="#bresenhamInput"
                    role="tab">Bresenham</a>
-                <a class="list-group-item list-group-item-action" data-toggle="list" href="#circulo"
+                <a class="list-group-item list-group-item-action" data-toggle="list"
+                   onclick="interfaceGrafica.ativarTela('circulo');" href="#circulo"
                    role="tab">Círculo</a>
+                <a class="list-group-item list-group-item-action"
+                   onclick="interfaceGrafica.ativarTela('preenchimento');" data-toggle="list" href="#preenchimento"
+                   role="tab">Preenchimento</a>
                 <!-- <a class="list-group-item list-group-item-action" data-toggle="list" href="#profile" role="tab">Profile</a>
                 <a class="list-group-item list-group-item-action" data-toggle="list" href="#messages" role="tab">Messages</a>
                 <a class="list-group-item list-group-item-action" data-toggle="list" href="#settings" role="tab">Settings</a> -->
@@ -154,7 +160,7 @@
                 </div>
 
                 <div class="tab-pane" id="circulo" role="tabpanel">
-                    <div class="md-form form-sm">
+                    <!--<div class="md-form form-sm">
                         <input type="number" id="x_circulo" class="form-control">
                         <label for="x_circulo" class="">X</label>
                     </div>
@@ -162,17 +168,24 @@
                     <div class="md-form form-sm">
                         <input type="number" id="y_circulo" class="form-control">
                         <label for="y_circulo" class="">Y</label>
-                    </div>
-
+                    </div>-->
                     <div class="md-form form-sm">
                         <input type="number" id="raio_circulo" class="form-control">
-                        <label for="y_circulo" class="">Raio</label>
+                        <label for="raio_circulo" class="">Raio</label>
                     </div>
 
                     <button type="button" class="btn btn-primary"
                             onclick="interfaceGrafica.desenharCirculo($('#x_circulo').val(), $('#y_circulo').val(), $('#raio_circulo').val())">
                         Desenhar
                     </button>
+                </div>
+
+                <div class="tab-pane" id="preenchimento" role="tabpanel">
+                    <div class="md-form form-sm" style="padding: 20px;">
+                        <input class="form-control jscolor" id="color" value="ab2567">
+                    </div>
+
+                    <p class="text-white">Escolha uma cor acima e clique em um pixel na tela para preencher</p>
                 </div>
 
             </div>
@@ -210,6 +223,8 @@
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <!-- MDB core JavaScript -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
+
+<script type="text/javascript" src="js/jscolor-2.0.4/jscolor.min.js"></script>
 
 <script type="text/javascript" src="js/paint.js"></script>
 
