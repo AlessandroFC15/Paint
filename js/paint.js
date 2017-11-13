@@ -209,6 +209,89 @@ class InterfaceGrafica {
         this.draw();
     }
 
+    performAndOperation(c1, c2) {
+        let result = "";
+
+        for (let i = 0; i < c1.length; i++) {
+            result += String(Number(c1[i]) * Number(c2[i]))
+        }
+
+        return result;
+    }
+
+    recorteLinhaCohenSutherland(p1, p2, x_min, x_max, y_min, y_max) {
+        var x, y;
+        var x0 = Number(p1[0]), y0 = Number(p1[1]);
+        var x1 = Number(p2[0]), y1 = Number(p2[1]);
+
+        x_min = Number(x_min);
+        x_max = Number(x_max);
+        y_min = Number(y_min);
+        y_max = Number(y_max);
+
+        var c1 = this.mkcode(x0, y0, x_min, x_max, y_min, y_max);
+        var c2 = this.mkcode(x1, y1, x_min, x_max, y_min, y_max);
+
+        if (c1 === "0000" && c2 === "0000") {
+            this.reset();
+            this.desenharLinhaBresenham(x0, y0, x1, y1);
+        } else if (this.performAndOperation(c1, c2) !== "0000") {
+            this.reset();
+            alert('Linha totalmente fora');
+        } else {
+            var outcodeOut = (c1 !== "0000") ? c1 : c2;
+
+            if (outcodeOut[0] === "1") {
+                /* discart top */
+                x = x0 + (x1 - x0) * (y_max - y0) / (y1 - y0);
+                y = y_max;
+            } else if (outcodeOut[1] === "1") {
+                /* discart bottom */
+                x = x0 + (x1 - x0) * (y_min - y0) / (y1 - y0);
+                y = y_min;
+            } else if (outcodeOut[2] === "1") {
+                /* discart right */
+                y = y0 + (y1 - y0) * (x_max - x0) / (x1 - x0);
+                x = x_max;
+            } else if (outcodeOut[3] === "1") {
+                /* discart left */
+                y = y0 + (y1 - y0) * (x_min - x0) / (x1 - x0);
+                x = x_min;
+            }
+
+            if (outcodeOut == c1) {
+                x0 = Math.round(x);
+                y0 = Math.round(y);
+            } else {
+                x1 = Math.round(x);
+                y1 = Math.round(y);
+            }
+
+            this.recorteLinhaCohenSutherland([x0, y0], [x1, y1], x_min, x_max, y_min, y_max);
+        }
+    }
+
+    mkcode(x, y, x_min, x_max, y_min, y_max) {
+        x = Number(x);
+        y = Number(y);
+
+        var code = '';
+        code += this.sign(y_max - y);
+        code += this.sign(y - y_min);
+        code += this.sign(x_max - x);
+        code += this.sign(x - x_min);
+
+        return code;
+    }
+
+    sign(n) {
+        if (n >= 0) {
+            return '0';
+        }
+
+        return '1';
+    }
+
     preencher(x, y, color, edgeColor = "#64b5f6") {
         this.floodFill(x, y, color, edgeColor);
 
@@ -251,7 +334,6 @@ class InterfaceGrafica {
 
     ativarTela(tela) {
         this.telaAtiva = tela;
-        console.log(this.telaAtiva);
     }
 }
 
@@ -301,6 +383,21 @@ class FrameBuffer {
 var interfaceGrafica;
 
 $(function () {
+    var div = document.getElementById('div'), x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+    var firstPixelRecorteLinha, secondPixelRecorteLinha, p1, p2;
+
+    function reCalc() { //This will restyle the div
+        var x3 = Math.min(x1, x2); //Smaller X
+        var x4 = Math.max(x1, x2); //Larger X
+        var y3 = Math.min(y1, y2); //Smaller Y
+        var y4 = Math.max(y1, y2); //Larger Y
+        div.style.left = x3 + 'px';
+        div.style.top = y3 + 'px';
+        div.style.width = x4 - x3 + 'px';
+        div.style.height = y4 - y3 + 'px';
+    }
+
+
     var numeroQuadradosPorLinha = 40;
     interfaceGrafica = new InterfaceGrafica(numeroQuadradosPorLinha, $(".grid"));
 
@@ -308,12 +405,13 @@ $(function () {
 
     $(".pixel").on('click', function (event) {
         var [x, y] = event.target.id.split('_');
+        var linhaRecorteDesenhada = false;
 
         if (interfaceGrafica.telaAtiva == "preenchimento") {
             var color = "#" + $("#color").val();
 
             interfaceGrafica.preencher(x, y, color)
-        } else if (interfaceGrafica.telaAtiva == "bresenham") {
+        } else if (interfaceGrafica.telaAtiva === "bresenham") {
             if (pixelsSelecionados.length >= 2) {
                 pixelsSelecionados.shift();
             }
@@ -322,7 +420,7 @@ $(function () {
 
             if (pixelsSelecionados.length == 2) {
                 interfaceGrafica.desenharLinhaBresenham(pixelsSelecionados[0].x, pixelsSelecionados[0].y,
-                    pixelsSelecionados[1].x, pixelsSelecionados[1].y)
+                    pixelsSelecionados[1].x, pixelsSelecionados[1].y);
             }
         } else if (interfaceGrafica.telaAtiva == "circulo") {
             var raio = $('#raio_circulo').val();
@@ -332,8 +430,88 @@ $(function () {
             }
 
             interfaceGrafica.desenharCirculo(x, y, raio);
+        } else if (interfaceGrafica.telaAtiva === "desenharLinhaRecorte") {
+            if (pixelsSelecionados.length >= 2) {
+                pixelsSelecionados.shift();
+            }
+
+            pixelsSelecionados.push({x: x, y: y});
+
+            if (pixelsSelecionados.length == 2) {
+                interfaceGrafica.desenharLinhaBresenham(pixelsSelecionados[0].x, pixelsSelecionados[0].y,
+                    pixelsSelecionados[1].x, pixelsSelecionados[1].y);
+
+                p1 = [pixelsSelecionados[0].x, pixelsSelecionados[0].y];
+                p2 = [pixelsSelecionados[1].x, pixelsSelecionados[1].y];
+
+                interfaceGrafica.telaAtiva = "recorteLinha";
+            }
+        } else if (interfaceGrafica.telaAtiva == "recorteLinha") {
+            onmousedown = function (e) {
+                firstPixelRecorteLinha = e.srcElement;
+
+                div.hidden = 0; //Unhide the div
+                x1 = e.clientX; //Set the initial X
+                y1 = e.clientY; //Set the initial Y
+                reCalc();
+            };
+            onmousemove = function (e) {
+                x2 = e.clientX; //Update the current position X
+                y2 = e.clientY; //Update the current position Y
+                reCalc();
+            };
+            onmouseup = function (e) {
+                var x_min, x_max, y_min, y_max;
+
+                secondPixelRecorteLinha = e.srcElement;
+
+                [x_min, y_max] = firstPixelRecorteLinha.id.split('_');
+                [x_max, y_min] = secondPixelRecorteLinha.id.split('_');
+
+                div.hidden = 1; //Hide the div
+
+                interfaceGrafica.recorteLinhaCohenSutherland(p1, p2, x_min, x_max, y_min, y_max);
+            };
+        } else if (interfaceGrafica.telaAtiva === "recortePoligono") {
+            onmousedown = function (e) {
+                firstPixelRecorteLinha = e.srcElement;
+
+                div.hidden = 0; //Unhide the div
+                x1 = e.clientX; //Set the initial X
+                y1 = e.clientY; //Set the initial Y
+                reCalc();
+            };
+            onmousemove = function (e) {
+                x2 = e.clientX; //Update the current position X
+                y2 = e.clientY; //Update the current position Y
+                reCalc();
+            };
+            onmouseup = function (e) {
+                var x_min, x_max, y_min, y_max;
+
+                secondPixelRecorteLinha = e.srcElement;
+
+                [x_min, y_max] = firstPixelRecorteLinha.id.split('_');
+                [x_max, y_min] = secondPixelRecorteLinha.id.split('_');
+
+                div.hidden = 1; //Hide the div
+            };
         }
-    })
+    });
+
+    /*$(".pixel").on('mouseover', function(event) {
+     var [x, y] = event.target.id.split('_');
+
+     // console.log(event);
+
+     if (event.which == 1) {
+     interfaceGrafica.desenharPonto(x, y)
+     $("#" + x + "_" + y).animate({
+     backgroundColor: interfaceGrafica.frameBuffer.getPixel(x, y)
+     }, 200);
+     // interfaceGrafica.draw();
+        }
+     })*/
 });
 
 
