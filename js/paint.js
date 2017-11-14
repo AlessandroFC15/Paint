@@ -239,27 +239,27 @@ class InterfaceGrafica {
             this.reset();
             alert('Linha totalmente fora');
         } else {
-            var outcodeOut = (c1 !== "0000") ? c1 : c2;
+            var pontoFora = (c1 !== "0000") ? c1 : c2;
 
-            if (outcodeOut[0] === "1") {
-                /* discart top */
+            if (pontoFora[0] === "1") {
+                /* Descartar topo */
                 x = x0 + (x1 - x0) * (y_max - y0) / (y1 - y0);
                 y = y_max;
-            } else if (outcodeOut[1] === "1") {
-                /* discart bottom */
+            } else if (pontoFora[1] === "1") {
+                /* Descartar embaixo */
                 x = x0 + (x1 - x0) * (y_min - y0) / (y1 - y0);
                 y = y_min;
-            } else if (outcodeOut[2] === "1") {
-                /* discart right */
+            } else if (pontoFora[2] === "1") {
+                /* Descartar direita */
                 y = y0 + (y1 - y0) * (x_max - x0) / (x1 - x0);
                 x = x_max;
-            } else if (outcodeOut[3] === "1") {
-                /* discart left */
+            } else if (pontoFora[3] === "1") {
+                /* Descartar esquerda */
                 y = y0 + (y1 - y0) * (x_min - x0) / (x1 - x0);
                 x = x_min;
             }
 
-            if (outcodeOut == c1) {
+            if (pontoFora == c1) {
                 x0 = Math.round(x);
                 y0 = Math.round(y);
             } else {
@@ -380,7 +380,7 @@ class FrameBuffer {
     }
 }
 
-var interfaceGrafica;
+let interfaceGrafica;
 
 $(function () {
     var div = document.getElementById('div'), x1 = 0, y1 = 0, x2 = 0, y2 = 0;
