@@ -319,7 +319,7 @@ class InterfaceGrafica {
                 // var pixel = document.getElementById(i + "_" + j);
                 $("#" + i + "_" + j).animate({
                     backgroundColor: this.frameBuffer.getPixel(i, j)
-                }, 200);
+                }, 100);
 
                 // pixel.style.backgroundColor = this.frameBuffer.getPixel(i, j)
             }
@@ -334,6 +334,83 @@ class InterfaceGrafica {
 
     ativarTela(tela) {
         this.telaAtiva = tela;
+    }
+
+    isPixelJaVisitado(x, y, pixelsJaVisitados) {
+        for (const pixel of pixelsJaVisitados) {
+            if (pixel.x === x && pixel.y === y) {
+                return true
+            }
+        }
+
+        return false;
+    }
+
+    getPixelsSelecionados(x, y, pixelsJaVisitados = []) {
+        x = Number(x);
+        y = Number(y);
+
+        const pixelInicial = this.frameBuffer.getPixel(x, y);
+
+        if (this.isPixelJaVisitado(x, y, pixelsJaVisitados)) {
+            return []
+        }
+
+        pixelsJaVisitados.push({x: x, y: y});
+
+        if (pixelInicial && pixelInicial !== "#ffffff") {
+            let result = [{x: x, y: y}];
+
+            // Direita
+            result = result.concat(this.getPixelsSelecionados(x + 1, y, pixelsJaVisitados));
+
+            // Diagonal Superior Direita
+            result = result.concat(this.getPixelsSelecionados(x + 1, y + 1, pixelsJaVisitados));
+
+            // Cima
+            result = result.concat(this.getPixelsSelecionados(x, y + 1, pixelsJaVisitados));
+
+            // Diagonal Superior Esquerda
+            result = result.concat(this.getPixelsSelecionados(x - 1, y + 1, pixelsJaVisitados));
+
+            // Esquerda
+            result = result.concat(this.getPixelsSelecionados(x - 1, y, pixelsJaVisitados));
+
+            // Diagonal Inferior Esquerda
+            result = result.concat(this.getPixelsSelecionados(x - 1, y - 1, pixelsJaVisitados));
+
+            // Baixo
+            result = result.concat(this.getPixelsSelecionados(x, y - 1, pixelsJaVisitados));
+
+            // Diagonal Inferior Direita
+            result = result.concat(this.getPixelsSelecionados(x + 1, y - 1, pixelsJaVisitados));
+
+            return result;
+        }
+
+        return [];
+    }
+
+    realizarTranslacao(dadosTranslacao) {
+        console.log(dadosTranslacao);
+
+        const deltaX = Number(dadosTranslacao.xFinal) - Number(dadosTranslacao.xInicial);
+        const deltaY = Number(dadosTranslacao.yFinal) - Number(dadosTranslacao.yInicial);
+
+        for (const pixel of dadosTranslacao.pixelsSelecionados) {
+            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
+
+            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
+        }
+
+        for (const pixel of dadosTranslacao.pixelsSelecionados) {
+            const newX = pixel.x + deltaX;
+            const newY = pixel.y + deltaY;
+
+            this.frameBuffer.setPixel(newX, newY, pixel.color);
+        }
+
+        interfaceGrafica.draw();
     }
 }
 
@@ -361,7 +438,7 @@ class FrameBuffer {
         return x >= 0 && x < this.matriz.length && y >= 0 && y < this.matriz.length
     }
 
-    setPixel(x, y, cor) {
+    setPixel(x, y, cor=this.defaultColor) {
         if (this.isValidPixel(x, y)) {
             this.matriz[x][y] = cor;
         }
@@ -385,6 +462,14 @@ let interfaceGrafica;
 $(function () {
     var div = document.getElementById('div'), x1 = 0, y1 = 0, x2 = 0, y2 = 0;
     var firstPixelRecorteLinha, secondPixelRecorteLinha, p1, p2;
+
+    let dadosTranslacao = {
+        xInicial: null,
+        yInicial: null,
+        xFinal: null,
+        yFinal: null,
+        pixelsSelecionados: []
+    };
 
     function reCalc() { //This will restyle the div
         var x3 = Math.min(x1, x2); //Smaller X
@@ -437,7 +522,7 @@ $(function () {
 
             pixelsSelecionados.push({x: x, y: y});
 
-            if (pixelsSelecionados.length == 2) {
+            if (pixelsSelecionados.length === 2) {
                 interfaceGrafica.desenharLinhaBresenham(pixelsSelecionados[0].x, pixelsSelecionados[0].y,
                     pixelsSelecionados[1].x, pixelsSelecionados[1].y);
 
@@ -495,6 +580,33 @@ $(function () {
                 [x_max, y_min] = secondPixelRecorteLinha.id.split('_');
 
                 div.hidden = 1; //Hide the div
+            };
+        } else if (interfaceGrafica.telaAtiva === "translacao") {
+            console.log('translacao');
+
+            onmousedown = function (e) {
+                console.log('Início do movimento');
+
+                [dadosTranslacao.xInicial, dadosTranslacao.yInicial] = e.target.id.split('_');
+
+                dadosTranslacao.pixelsSelecionados = interfaceGrafica.getPixelsSelecionados(dadosTranslacao.xInicial, dadosTranslacao.yInicial);
+
+                // console.log('onmousedown');
+            };
+
+            onmousemove = function (e) {
+                // console.log('onmousemove');
+            };
+
+            onmouseup = function (e) {
+                console.log('Fim do movimento');
+
+                [dadosTranslacao.xFinal, dadosTranslacao.yFinal] = e.target.id.split('_');
+                console.log(dadosTranslacao);
+
+                interfaceGrafica.realizarTranslacao(dadosTranslacao);
+
+                // console.log('onmouseup');
             };
         }
     });
