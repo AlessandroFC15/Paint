@@ -412,6 +412,38 @@ class InterfaceGrafica {
 
         interfaceGrafica.draw();
     }
+
+    grausParaRadianos(valorAnguloEmGraus) {
+        return valorAnguloEmGraus * (Math.PI/180)
+    }
+
+    realizarRotacao(pixelsSelecionados, pontoRotacao, angulo=90) {
+        console.log('rotacao');
+
+        // 1º Passo = Realizar translação
+
+        const deltaX = Number(pontoRotacao.x);
+        const deltaY = Number(pontoRotacao.y);
+
+        for (const pixel of pixelsSelecionados) {
+            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
+            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
+
+            pixel.x -= deltaX;
+            pixel.y -= deltaY;
+        }
+
+        // 2º Passo = Realizar a rotação e a translação de volta
+
+        for (const pixel of pixelsSelecionados) {
+            const newX = (pixel.x * Math.cos(this.grausParaRadianos(angulo))) - (pixel.y * Math.sin(this.grausParaRadianos(angulo)));
+            const newY = (pixel.x * Math.sin(this.grausParaRadianos(angulo))) + (pixel.y * Math.cos(this.grausParaRadianos(angulo)));
+
+            this.frameBuffer.setPixel(Math.round(newX) + deltaX, Math.round(newY) + deltaY, pixel.color);
+        }
+
+        interfaceGrafica.draw();
+    }
 }
 
 class FrameBuffer {
@@ -489,7 +521,7 @@ $(function () {
     var pixelsSelecionados = [];
 
     $(".pixel").on('click', function (event) {
-        var [x, y] = event.target.id.split('_');
+        const [x, y] = event.target.id.split('_');
         var linhaRecorteDesenhada = false;
 
         if (interfaceGrafica.telaAtiva == "preenchimento") {
@@ -590,12 +622,6 @@ $(function () {
                 [dadosTranslacao.xInicial, dadosTranslacao.yInicial] = e.target.id.split('_');
 
                 dadosTranslacao.pixelsSelecionados = interfaceGrafica.getPixelsSelecionados(dadosTranslacao.xInicial, dadosTranslacao.yInicial);
-
-                // console.log('onmousedown');
-            };
-
-            onmousemove = function (e) {
-                // console.log('onmousemove');
             };
 
             onmouseup = function (e) {
@@ -608,6 +634,10 @@ $(function () {
 
                 // console.log('onmouseup');
             };
+        } else if (interfaceGrafica.telaAtiva === 'rotacao') {
+            const pixelsSelecionados = interfaceGrafica.getPixelsSelecionados(x, y);
+
+            interfaceGrafica.realizarRotacao(pixelsSelecionados, {x: x, y: y});
         }
     });
 
