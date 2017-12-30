@@ -418,8 +418,6 @@ class InterfaceGrafica {
     }
 
     realizarRotacao(pixelsSelecionados, pontoRotacao, angulo=90) {
-        console.log('rotacao');
-
         // 1º Passo = Realizar translação
 
         const deltaX = Number(pontoRotacao.x);
@@ -636,8 +634,9 @@ $(function () {
             };
         } else if (interfaceGrafica.telaAtiva === 'rotacao') {
             const pixelsSelecionados = interfaceGrafica.getPixelsSelecionados(x, y);
+            const angulo = Number($("#angulo").val());
 
-            interfaceGrafica.realizarRotacao(pixelsSelecionados, {x: x, y: y});
+            interfaceGrafica.realizarRotacao(pixelsSelecionados, {x: x, y: y}, angulo);
         }
     });
 
