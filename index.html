@@ -60,6 +60,7 @@
             background-color: transparent;
             border: none;
             color: white;
+            padding: 10px!important;
         }
 
         .list-group-item.active {
@@ -141,6 +142,10 @@
                 <a class="list-group-item list-group-item-action"
                    onclick="interfaceGrafica.ativarTela('rotacao');" data-toggle="list" href="#rotacao"
                    role="tab">Rotação</a>
+
+                <a class="list-group-item list-group-item-action"
+                   onclick="interfaceGrafica.ativarTela('escala');" data-toggle="list" href="#escala"
+                   role="tab">Escala</a>
 
                 <!-- <a class="list-group-item list-group-item-action" data-toggle="list" href="#profile" role="tab">Profile</a>
                 <a class="list-group-item list-group-item-action" data-toggle="list" href="#messages" role="tab">Messages</a>
@@ -230,6 +235,24 @@
                     </div>
 
                     <p class="text-white">Clique em um objeto na tela para realizar a rotação conforme o ângulo acima</p>
+                </div>
+
+                <div class="tab-pane" id="escala" role="tabpanel">
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="escalaX" class="form-control" value="1">
+                            <label for="x1" class="">Fator Escala X</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="escalaY" class="form-control" value="1">
+                            <label for="x1" class="">Fator Escala Y</label>
+                        </div>
+                    </div>
+
+                    <p class="text-white">Clique em um objeto na tela para realizar a escala</p>
                 </div>
 
             </div>

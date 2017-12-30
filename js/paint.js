@@ -442,6 +442,32 @@ class InterfaceGrafica {
 
         interfaceGrafica.draw();
     }
+
+    realizarEscala(pixelsSelecionados, origem, escalaX, escalaY) {
+        // 1º Passo = Realizar translação
+
+        const deltaX = Number(origem.x);
+        const deltaY = Number(origem.y);
+
+        for (const pixel of pixelsSelecionados) {
+            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
+            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
+
+            pixel.x -= deltaX;
+            pixel.y -= deltaY;
+        }
+
+        // 2º Passo = Realizar a escala e a translação de volta
+
+        for (const pixel of pixelsSelecionados) {
+            const newX = Math.round(pixel.x * escalaX);
+            const newY = Math.round(pixel.y * escalaY);
+
+            this.frameBuffer.setPixel(Math.round(newX) + deltaX, Math.round(newY) + deltaY, pixel.color);
+        }
+
+        interfaceGrafica.draw();
+    }
 }
 
 class FrameBuffer {
@@ -637,6 +663,13 @@ $(function () {
             const angulo = Number($("#angulo").val());
 
             interfaceGrafica.realizarRotacao(pixelsSelecionados, {x: x, y: y}, angulo);
+        } else if (interfaceGrafica.telaAtiva === 'escala') {
+            const pixelsSelecionados = interfaceGrafica.getPixelsSelecionados(x, y);
+            const fatorX = Number($("#escalaX").val());
+            const fatorY = Number($("#escalaY").val());
+
+            interfaceGrafica.realizarEscala(pixelsSelecionados, {x: x, y: y}, fatorX, fatorY);
+
         }
     });
 
