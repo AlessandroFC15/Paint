@@ -32,7 +32,7 @@ class InterfaceGrafica {
         }
     }
 
-    desenharLinhaBresenham(x0, y0, x1, y1, color) {
+    desenharLinhaBresenham(x0, y0, x1, y1, color, shouldDraw = true) {
         x0 = Number(x0);
         y0 = Number(y0);
         x1 = Number(x1);
@@ -128,7 +128,9 @@ class InterfaceGrafica {
             this.desenharPonto(elemento_x, elemento_y, color);
         }
 
-        this.draw();
+        if (shouldDraw) {
+            this.draw();
+        }
     }
 
     desenharCirculo(inputX, inputY, raio) {
@@ -457,6 +459,8 @@ class InterfaceGrafica {
             pixel.y -= deltaY;
         }
 
+        let pixelsAposEscala = [];
+
         // 2º Passo = Realizar a escala e a translação de volta
 
         for (const pixel of pixelsSelecionados) {
@@ -464,7 +468,24 @@ class InterfaceGrafica {
             const newY = Math.round(pixel.y * escalaY);
 
             this.frameBuffer.setPixel(Math.round(newX) + deltaX, Math.round(newY) + deltaY, pixel.color);
+
+            /*pixelsAposEscala.push({
+                x: Math.round(newX) + deltaX,
+                y: Math.round(newY) + deltaY,
+                color: pixel.color
+            })*/
         }
+
+        console.log(pixelsAposEscala);
+
+        /*for (let i = 0; i < pixelsAposEscala.length - 1; i++) {
+            const pixel = pixelsAposEscala[i];
+            const nextPixel = pixelsAposEscala[i + 1];
+
+            console.log('>> Desenhando linha <<');
+
+            this.desenharLinhaBresenham(pixel.x, pixel.y, nextPixel.x, nextPixel.y, pixel.color, false);
+        }*/
 
         interfaceGrafica.draw();
     }

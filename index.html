@@ -104,55 +104,58 @@
 <body>
 
 <div class="container-fluid" id="container">
-    <div class="row header">
-        <div class="col-md-1">
+    <div class="row header" style="height: 63px!important;">
+        <div class="col-md-2">
+            <div class="btn-group">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Algoritmos</button>
+
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" id='bresenham-option'
+                       onclick="interfaceGrafica.ativarTela('bresenham');" data-toggle="list" href="#bresenhamInput"
+                       role="tab">Bresenham</a>
+
+                    <a class="dropdown-item" data-toggle="list"
+                       onclick="interfaceGrafica.ativarTela('circulo');" href="#circulo"
+                       role="tab">Círculo</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('preenchimento');" data-toggle="list" href="#preenchimento"
+                       role="tab">Preenchimento</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('desenharLinhaRecorte');" data-toggle="list"
+                       href="#desenharLinhaRecorte"
+                       role="tab">Recorte Linha</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('recortePoligono');" data-toggle="list"
+                       href="#desenharLinhaRecorte"
+                       role="tab">Recorte Polígono</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('translacao');" data-toggle="list" href="#translacao"
+                       role="tab">Translação</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('rotacao');" data-toggle="list" href="#rotacao"
+                       role="tab">Rotação</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('escala');" data-toggle="list" href="#escala"
+                       role="tab">Escala</a>
+
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-11 text-center">
+        <div class="col-md-10 text-center">
             <h4 class="font-weight-bold header-title">Paint</h4>
         </div>
     </div>
 
     <div class="row" style="height: 100%; background: rgba(211, 211, 211, 0.2)">
         <div class="menu">
-            <div class="list-group" role="tablist" style="flex: 1">
-                <a class="list-group-item list-group-item-action active" id='bresenham-option'
-                   onclick="interfaceGrafica.ativarTela('bresenham');" data-toggle="list" href="#bresenhamInput"
-                   role="tab">Bresenham</a>
-                <a class="list-group-item list-group-item-action" data-toggle="list"
-                   onclick="interfaceGrafica.ativarTela('circulo');" href="#circulo"
-                   role="tab">Círculo</a>
-                <a class="list-group-item list-group-item-action"
-                   onclick="interfaceGrafica.ativarTela('preenchimento');" data-toggle="list" href="#preenchimento"
-                   role="tab">Preenchimento</a>
-                <a class="list-group-item list-group-item-action"
-                   onclick="interfaceGrafica.ativarTela('desenharLinhaRecorte');" data-toggle="list"
-                   href="#desenharLinhaRecorte"
-                   role="tab">Recorte Linha</a>
-
-                <a class="list-group-item list-group-item-action"
-                   onclick="interfaceGrafica.ativarTela('recortePoligono');" data-toggle="list"
-                   href="#desenharLinhaRecorte"
-                   role="tab">Recorte Polígono</a>
-
-                <a class="list-group-item list-group-item-action"
-                   onclick="interfaceGrafica.ativarTela('translacao');" data-toggle="list" href="#translacao"
-                   role="tab">Translação</a>
-
-                <a class="list-group-item list-group-item-action"
-                   onclick="interfaceGrafica.ativarTela('rotacao');" data-toggle="list" href="#rotacao"
-                   role="tab">Rotação</a>
-
-                <a class="list-group-item list-group-item-action"
-                   onclick="interfaceGrafica.ativarTela('escala');" data-toggle="list" href="#escala"
-                   role="tab">Escala</a>
-
-                <!-- <a class="list-group-item list-group-item-action" data-toggle="list" href="#profile" role="tab">Profile</a>
-                <a class="list-group-item list-group-item-action" data-toggle="list" href="#messages" role="tab">Messages</a>
-                <a class="list-group-item list-group-item-action" data-toggle="list" href="#settings" role="tab">Settings</a> -->
-            </div>
-
-            <div class="tab-content" style="flex: 0.4; padding: 10px">
+            <div class="tab-content" style="flex: 0.4; padding: 10px; margin-top: 60px">
                 <div class="tab-pane fade show active" id="bresenhamInput" role="tabpanel" aria-labelledby="bresenham-option">
                     <div class="row">
                         <div class="col-md-6">
@@ -252,7 +255,6 @@
                         </div>
                     </div>
 
-                    <p class="text-white">Clique em um objeto na tela para realizar a escala</p>
                 </div>
 
             </div>
