@@ -120,7 +120,11 @@
 
                     <a class="dropdown-item"
                        onclick="interfaceGrafica.ativarTela('preenchimento');" data-toggle="list" href="#preenchimento"
-                       role="tab">Preenchimento</a>
+                       role="tab">Preenchimento (Recursivo)</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('preenchimentoScanline');" data-toggle="list" href="#preenchimentoScanline"
+                       role="tab">Preenchimento (Scanline)</a>
 
                     <a class="dropdown-item"
                        onclick="interfaceGrafica.ativarTela('desenharLinhaRecorte');" data-toggle="list"
@@ -219,6 +223,16 @@
                     </div>
 
                     <p class="text-white">Escolha uma cor acima e clique em um pixel na tela para preencher</p>
+                </div>
+
+                <div class="tab-pane" id="preenchimentoScanline" role="tabpanel">
+                    <div class="md-form form-sm" style="padding: 20px;">
+                        <input class="form-control jscolor" id="colorScanline" value="ab2567">
+                    </div>
+
+                    <p class="text-white">Primeiramente desenhe o polígono.</p>
+
+                    <p class="text-white">Em seguida, escolha uma cor acima e clique em um pixel na tela para preencher</p>
                 </div>
 
                 <div class="tab-pane" id="desenharLinhaRecorte" role="tabpanel">

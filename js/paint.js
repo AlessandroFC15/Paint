@@ -32,7 +32,7 @@ class InterfaceGrafica {
         }
     }
 
-    desenharLinhaBresenham(x0, y0, x1, y1, color, shouldDraw = true) {
+    desenharLinhaBresenham(x0, y0, x1, y1, color, shouldDraw = true, shouldDrawEdges = true) {
         x0 = Number(x0);
         y0 = Number(y0);
         x1 = Number(x1);
@@ -81,8 +81,6 @@ class InterfaceGrafica {
 
         pixels.push([x, y]);
 
-        //this.desenharPonto(x, y);
-
         for (x = x0 + 1; x <= x1; x++) {
             if (e >= 0) {
                 y += 1;
@@ -92,8 +90,6 @@ class InterfaceGrafica {
             e += m;
 
             pixels.push([x, y]);
-
-            //this.desenharPonto(x, y);
         }
 
         // ------------- REFLEXÃO -1
@@ -120,6 +116,11 @@ class InterfaceGrafica {
 
                 pixels[i] = [elemento_y, elemento_x];
             }
+        }
+
+        if (! shouldDrawEdges) {
+            pixels.shift();
+            pixels.pop();
         }
 
         for (var i = 0; i < pixels.length; i++) {
@@ -296,6 +297,71 @@ class InterfaceGrafica {
 
     preencher(x, y, color, edgeColor = "#64b5f6") {
         this.floodFill(x, y, color, edgeColor);
+
+        this.draw();
+    }
+
+    preencherScanLine(verticesPoligono, pixelsPoligono, color) {
+        function isVertice(ponto) {
+            return verticesPoligono.some(pixel => pixel.x === ponto.x && pixel.y === ponto.y)
+        }
+
+        function existemPontosEntreIntersecoes(p1, p2) {
+            console.log(p1);
+            console.log(p2);
+            console.log(pixelsPoligono);
+
+            return pixelsPoligono.some(pixel => pixel.y === p1.y && pixel.x > p1.x && pixel.x < p2.x)
+        }
+
+        console.log(verticesPoligono);
+        console.log(pixelsPoligono);
+
+        const yMax = Math.max(...(verticesPoligono.map(ponto => ponto.y)));
+        const yMin = Math.min(...(verticesPoligono.map(ponto => ponto.y)));
+        const xMax = Math.max(...(verticesPoligono.map(ponto => ponto.x)));
+        const xMin = Math.min(...(verticesPoligono.map(ponto => ponto.x)));
+
+        // Passar o ScanLine
+
+        for (let yVarredura = yMin + 1; yVarredura < yMax; yVarredura++) {
+            let pontosIntersecao = [];
+
+            console.log(">> Analisando linha " + yVarredura);
+
+            for (let xVarredura = xMin; xVarredura <= xMax; xVarredura++) {
+                if (pixelsPoligono.some(ponto => ponto.x === xVarredura && ponto.y === yVarredura)) {
+                    pontosIntersecao.push({x: xVarredura, y: yVarredura});
+                }
+            }
+
+            if (pontosIntersecao.length > 1) {
+                console.log('>> Deveria desenhar linha;');
+                console.log(pontosIntersecao);
+
+                if (pontosIntersecao.length % 2 === 0) {
+                    while (pontosIntersecao.length > 0) {
+                        const p1 = pontosIntersecao.shift();
+                        const p2 = pontosIntersecao.shift();
+
+                        console.log('Existem pontos: ' + existemPontosEntreIntersecoes(p1, p2));
+
+                        this.desenharLinhaBresenham(p1.x, p1.y,
+                            p2.x, p2.y, color, false, false);
+                    }
+                } else {
+                    for (let i = 0; i < pontosIntersecao.length - 1; i++) {
+                        const p1 = pontosIntersecao[i];
+                        const p2 = pontosIntersecao[i + 1];
+
+                        console.log('Existem pontos: ' + existemPontosEntreIntersecoes(p1, p2));
+
+                        this.desenharLinhaBresenham(p1.x, p1.y,
+                            p2.x, p2.y, color, false, false);
+                    }
+                }
+            }
+        }
 
         this.draw();
     }
@@ -565,14 +631,50 @@ $(function () {
 
     var pixelsSelecionados = [];
 
+    let dadosPreenchimentoScanline = {
+        poligono: {
+            vertices: [],
+            pixels: [],
+            isPronto: false
+        },
+    };
+
     $(".pixel").on('click', function (event) {
         const [x, y] = event.target.id.split('_');
         var linhaRecorteDesenhada = false;
 
-        if (interfaceGrafica.telaAtiva == "preenchimento") {
-            var color = "#" + $("#color").val();
+        if (interfaceGrafica.telaAtiva === "preenchimento") {
+            const color = "#" + $("#color").val();
 
             interfaceGrafica.preencher(x, y, color)
+        } else if (interfaceGrafica.telaAtiva === "preenchimentoScanline") {
+            if (! dadosPreenchimentoScanline.poligono.isPronto) {
+                let vertices = dadosPreenchimentoScanline.poligono.vertices;
+
+                vertices.push({x: Number(x), y: Number(y)});
+
+                if (vertices.length >= 2) {
+                    const ultimoVerticeInserido = vertices[vertices.length - 1];
+                    const penultimoVerticeInserido = vertices[vertices.length - 2];
+
+                    interfaceGrafica.desenharLinhaBresenham(penultimoVerticeInserido.x, penultimoVerticeInserido.y,
+                        ultimoVerticeInserido.x, ultimoVerticeInserido.y);
+
+                    const primeiroVerticeInserido = vertices[0];
+
+                    if (ultimoVerticeInserido.x === primeiroVerticeInserido.x && ultimoVerticeInserido.y === primeiroVerticeInserido.y) {
+                        vertices.pop();
+
+                        dadosPreenchimentoScanline.poligono.isPronto = true;
+
+                        dadosPreenchimentoScanline.poligono.pixels = interfaceGrafica.getPixelsSelecionados(ultimoVerticeInserido.x, ultimoVerticeInserido.y);
+                    }
+                }
+            } else {
+                const color = "#" + $("#colorScanline").val();
+
+                interfaceGrafica.preencherScanLine(dadosPreenchimentoScanline.poligono.vertices, dadosPreenchimentoScanline.poligono.pixels, color);
+            }
         } else if (interfaceGrafica.telaAtiva === "bresenham") {
             if (pixelsSelecionados.length >= 2) {
                 pixelsSelecionados.shift();
@@ -580,7 +682,7 @@ $(function () {
 
             pixelsSelecionados.push({x: x, y: y});
 
-            if (pixelsSelecionados.length == 2) {
+            if (pixelsSelecionados.length === 2) {
                 interfaceGrafica.desenharLinhaBresenham(pixelsSelecionados[0].x, pixelsSelecionados[0].y,
                     pixelsSelecionados[1].x, pixelsSelecionados[1].y);
             }
