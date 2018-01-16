@@ -302,14 +302,40 @@ class InterfaceGrafica {
     }
 
     preencherScanLine(verticesPoligono, pixelsPoligono, color) {
+        const yMax = Math.max(...(verticesPoligono.map(ponto => ponto.y)));
+        const yMin = Math.min(...(verticesPoligono.map(ponto => ponto.y)));
+        const xMax = Math.max(...(verticesPoligono.map(ponto => ponto.x)));
+        const xMin = Math.min(...(verticesPoligono.map(ponto => ponto.x)));
+
+        function isPontoDentroPoligono(pixel) {
+            let numberOfInteractions = 0;
+
+            for (let x = xMin; x <= pixel.x; x++) {
+                if (isPixelParteAresta(x, pixel.y)) {
+                    numberOfInteractions += 1;
+                }
+            }
+
+            console.log(numberOfInteractions);
+        }
+
+        function isPixelParteAresta(x, y) {
+            return pixelsPoligono.some(pixel => pixel.x === x && pixel.y === y)
+        }
+
         function isVertice(ponto) {
             return verticesPoligono.some(pixel => pixel.x === ponto.x && pixel.y === ponto.y)
         }
 
         function existemPontosEntreIntersecoes(p1, p2) {
+            console.log('existemPontosEntreIntersecoes');
             console.log(p1);
             console.log(p2);
-            console.log(pixelsPoligono);
+
+            for (let x = p1.x + 1; x < p2.x; x++) {
+                console.log('isPontoDentroPoligono| x: ' + x + " | y: " + p1.y);
+                console.log(isPontoDentroPoligono({x: x, y: p1.y}));
+            }
 
             return pixelsPoligono.some(pixel => pixel.y === p1.y && pixel.x > p1.x && pixel.x < p2.x)
         }
@@ -317,10 +343,7 @@ class InterfaceGrafica {
         console.log(verticesPoligono);
         console.log(pixelsPoligono);
 
-        const yMax = Math.max(...(verticesPoligono.map(ponto => ponto.y)));
-        const yMin = Math.min(...(verticesPoligono.map(ponto => ponto.y)));
-        const xMax = Math.max(...(verticesPoligono.map(ponto => ponto.x)));
-        const xMin = Math.min(...(verticesPoligono.map(ponto => ponto.x)));
+
 
         // Passar o ScanLine
 
@@ -555,6 +578,198 @@ class InterfaceGrafica {
 
         interfaceGrafica.draw();
     }
+
+    // Returns x-value of point of intersectipn of two
+    // lines
+    x_intersect(x1, y1, x2, y2,
+                         x3, y3, x4, y4) {
+        let num = (x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4);
+        let den = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
+        return num/den;
+    }
+
+    // Returns y-value of point of intersectipn of
+    // two lines
+    y_intersect(x1, y1, x2, y2, x3, y3, x4, y4)
+    {
+        let num = (x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4);
+        let den = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
+        return num/den;
+    }
+
+    // This functions clips all the edges w.r.t one clip
+    // edge of clipping area
+    clipp(dadosEntrada, x1, y1, x2, y2) {
+        let pontos = [];
+
+        for (let i = 0; i < dadosEntrada.length; i++) {
+
+            // i and k form a line in polygon
+            let k = (i+1) % dadosEntrada.length;
+            let ix = dadosEntrada[i][0], iy = dadosEntrada[i][1];
+            let kx = dadosEntrada[k][0], ky = dadosEntrada[k][1];
+
+            // Calculating position of first point
+            // w.r.t. clipper line
+            let i_pos = (x2-x1) * (iy-y1) - (y2-y1) * (ix-x1);
+
+            // Calculating position of second point
+            // w.r.t. clipper line
+            let k_pos = (x2-x1) * (ky-y1) - (y2-y1) * (kx-x1);
+
+            // Case 1 : When both points are inside
+            if (i_pos < 0  && k_pos < 0)
+            {
+                //Only second point is added
+                pontos.push([kx, ky]);
+            }
+
+            // Case 2: When only first point is outside
+            else if (i_pos >= 0  && k_pos < 0)
+            {
+                // Point of intersection with edge
+                // and the second point is added
+                pontos.push([this.x_intersect(x1, y1, x2, y2, ix, iy, kx, ky), this.y_intersect(x1, y1, x2, y2, ix, iy, kx, ky)]);
+
+                pontos.push([kx, ky]);
+            }
+
+
+            // Case 3: When only second point is outside
+            else if (i_pos < 0  && k_pos >= 0)
+            {
+                //Only point of intersection with edge is added
+                pontos.push([this.x_intersect(x1, y1, x2, y2, ix, iy, kx, ky), this.y_intersect(x1, y1, x2, y2, ix, iy, kx, ky)]);
+            }
+
+            // Case 4: When both points are outside
+            else
+            {
+                //No points are added
+            }
+        }
+
+        return pontos;
+    }
+
+    suthHodgClip(verticesSubjectPolygon, verticesClipPolygon) {
+        let list = verticesSubjectPolygon;
+
+        for (let i = 0; i < verticesClipPolygon.length; i++) {
+            let k = (i+1) % verticesClipPolygon.length;
+
+            // We pass the current array of vertices, it's size
+            // and the end points of the selected clipper line
+            let output = this.clipp(list, verticesClipPolygon[i][0], verticesClipPolygon[i][1], verticesClipPolygon[k][0],
+                verticesClipPolygon[k][1]);
+
+            list = output;
+        }
+
+        console.log(list);
+
+        this.reset();
+
+        for (let i = 0; i < list.length; i++) {
+            let k = (i+1) % list.length;
+
+            let vertice = list[i].map((ponto) => Math.round(ponto));
+
+            let proximoVertice = list[k].map((ponto) => Math.round(ponto));
+
+            this.desenharLinhaBresenham(vertice[0], vertice[1], proximoVertice[0], proximoVertice[1], "#000", false)
+        }
+
+        console.log(list);
+
+        this.draw();
+
+        /*let ultimoVertice = outputList[outputList.length - 1];
+        ultimoVertice[0] = Math.round(ultimoVertice[0]);
+        ultimoVertice[1] = Math.round(ultimoVertice[1]);
+
+        this.desenharLinhaBresenham(ultimoVertice[0], ultimoVertice[1], outputList[0][0], outputList[0][1], "#000", false);
+
+        this.draw();*/
+
+        // Printing vertices of clipped polygon
+        /*for (let i = 0; i < verticesSubjectPolygon.length; i++) {
+            console.log(verticesSubjectPolygon[i][0]);
+            console.log(verticesSubjectPolygon[i][1]);
+            console.log('-----');
+        }*/
+    }
+
+    clip (subjectPolygon, clipPolygon) {
+        console.log(subjectPolygon);
+        console.log(clipPolygon);
+
+        var cp1, cp2, s, e;
+        var inside = function (p) {
+            return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
+        };
+        var intersection = function () {
+            var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
+                dp = [ s[0] - e[0], s[1] - e[1] ],
+                n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
+                n2 = s[0] * e[1] - s[1] * e[0],
+                n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
+            return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
+        };
+        var outputList = subjectPolygon;
+        cp1 = clipPolygon[clipPolygon.length-1];
+        for (var j in clipPolygon) {
+            var cp2 = clipPolygon[j];
+
+            console.log("Clip Polygon: ");
+            console.log(cp2);
+
+            var inputList = outputList;
+            outputList = [];
+
+            s = inputList[inputList.length - 1]; //last on the input list
+            for (var i in inputList) {
+                var e = inputList[i];
+                console.log('>> Elemento da Input List');
+                console.log(e);
+                if (inside(e)) {
+                    if (!inside(s)) {
+                        outputList.push(intersection());
+                    }
+                    outputList.push(e);
+                }
+                else if (inside(s)) {
+                    outputList.push(intersection());
+                }
+                s = e;
+            }
+            cp1 = cp2;
+        }
+
+        console.log(outputList);
+
+        for (let i = 0; i < outputList.length - 1; i++) {
+            let vertice = outputList[i];
+            vertice[0] = Math.round(vertice[0]);
+            vertice[1] = Math.round(vertice[1]);
+
+            let proximoVertice = outputList[i + 1];
+            proximoVertice[0] = Math.round(proximoVertice[0]);
+            proximoVertice[1] = Math.round(proximoVertice[1]);
+
+            this.desenharLinhaBresenham(vertice[0], vertice[1], proximoVertice[0], proximoVertice[1], "#000", false)
+        }
+
+        let ultimoVertice = outputList[outputList.length - 1];
+        ultimoVertice[0] = Math.round(ultimoVertice[0]);
+        ultimoVertice[1] = Math.round(ultimoVertice[1]);
+
+        this.desenharLinhaBresenham(ultimoVertice[0], ultimoVertice[1], outputList[0][0], outputList[0][1], "#000", false);
+
+        this.draw();
+
+        return outputList;
+    }
 }
 
 class FrameBuffer {
@@ -625,7 +840,6 @@ $(function () {
         div.style.height = y4 - y3 + 'px';
     }
 
-
     var numeroQuadradosPorLinha = 40;
     interfaceGrafica = new InterfaceGrafica(numeroQuadradosPorLinha, $(".grid"));
 
@@ -637,6 +851,17 @@ $(function () {
             pixels: [],
             isPronto: false
         },
+    };
+
+    let dadosRecortePoligono = {
+        poligonoASerRecortado: {
+            vertices: [],
+            isPronto: false
+        },
+        poligonoDeRecorte: {
+            vertices: [],
+            isPronto: false
+        }
     };
 
     $(".pixel").on('click', function (event) {
@@ -686,7 +911,7 @@ $(function () {
                 interfaceGrafica.desenharLinhaBresenham(pixelsSelecionados[0].x, pixelsSelecionados[0].y,
                     pixelsSelecionados[1].x, pixelsSelecionados[1].y);
             }
-        } else if (interfaceGrafica.telaAtiva == "circulo") {
+        } else if (interfaceGrafica.telaAtiva === "circulo") {
             var raio = $('#raio_circulo').val();
 
             if (!raio) {
@@ -710,7 +935,7 @@ $(function () {
 
                 interfaceGrafica.telaAtiva = "recorteLinha";
             }
-        } else if (interfaceGrafica.telaAtiva == "recorteLinha") {
+        } else if (interfaceGrafica.telaAtiva === "recorteLinha") {
             onmousedown = function (e) {
                 firstPixelRecorteLinha = e.srcElement;
 
@@ -737,29 +962,65 @@ $(function () {
                 interfaceGrafica.recorteLinhaCohenSutherland(p1, p2, x_min, x_max, y_min, y_max);
             };
         } else if (interfaceGrafica.telaAtiva === "recortePoligono") {
-            onmousedown = function (e) {
-                firstPixelRecorteLinha = e.srcElement;
+            if (! dadosRecortePoligono.poligonoASerRecortado.isPronto) {
+                let vertices = dadosRecortePoligono.poligonoASerRecortado.vertices;
 
-                div.hidden = 0; //Unhide the div
-                x1 = e.clientX; //Set the initial X
-                y1 = e.clientY; //Set the initial Y
-                reCalc();
-            };
-            onmousemove = function (e) {
-                x2 = e.clientX; //Update the current position X
-                y2 = e.clientY; //Update the current position Y
-                reCalc();
-            };
-            onmouseup = function (e) {
-                var x_min, x_max, y_min, y_max;
+                vertices.push([Number(x), Number(y)]);
 
-                secondPixelRecorteLinha = e.srcElement;
+                if (vertices.length >= 2) {
+                    const ultimoVerticeInserido = vertices[vertices.length - 1];
+                    const penultimoVerticeInserido = vertices[vertices.length - 2];
 
-                [x_min, y_max] = firstPixelRecorteLinha.id.split('_');
-                [x_max, y_min] = secondPixelRecorteLinha.id.split('_');
+                    interfaceGrafica.desenharLinhaBresenham(penultimoVerticeInserido[0], penultimoVerticeInserido[1],
+                        ultimoVerticeInserido[0], ultimoVerticeInserido[1]);
 
-                div.hidden = 1; //Hide the div
-            };
+                    const primeiroVerticeInserido = vertices[0];
+
+                    if (ultimoVerticeInserido[0] === primeiroVerticeInserido[0] && ultimoVerticeInserido[1] === primeiroVerticeInserido[1]) {
+                        vertices.pop();
+
+                        dadosRecortePoligono.poligonoASerRecortado.isPronto = true;
+
+                        alert('Polígono pronto! Desenhe o de recorte agora!');
+                    }
+                }
+            } else {
+                if (! dadosRecortePoligono.poligonoDeRecorte.isPronto) {
+                    let vertices = dadosRecortePoligono.poligonoDeRecorte.vertices;
+
+                    // vertices.push({x: Number(x), y: Number(y)});
+                    vertices.push([Number(x), Number(y)]);
+
+                    if (vertices.length >= 2) {
+                        const ultimoVerticeInserido = vertices[vertices.length - 1];
+                        const penultimoVerticeInserido = vertices[vertices.length - 2];
+
+                        interfaceGrafica.desenharLinhaBresenham(penultimoVerticeInserido[0], penultimoVerticeInserido[1],
+                            ultimoVerticeInserido[0], ultimoVerticeInserido[1], "#ccc");
+
+                        const primeiroVerticeInserido = vertices[0];
+
+                        if (ultimoVerticeInserido[0] === primeiroVerticeInserido[0] && ultimoVerticeInserido[1] === primeiroVerticeInserido[1]) {
+                            vertices.pop();
+
+                            dadosRecortePoligono.poligonoDeRecorte.isPronto = true;
+
+                            alert('Tudo pronto!');
+
+                            console.log(dadosRecortePoligono);
+                            console.log(dadosRecortePoligono.poligonoASerRecortado.vertices);
+                            console.log(dadosRecortePoligono.poligonoDeRecorte.vertices);
+
+                            console.log(interfaceGrafica.suthHodgClip(dadosRecortePoligono.poligonoASerRecortado.vertices, dadosRecortePoligono.poligonoDeRecorte.vertices));
+                        }
+                    }
+                } else {
+                    alert('Tudo pronto!');
+
+                    console.log(dadosRecortePoligono);
+                }
+
+            }
         } else if (interfaceGrafica.telaAtiva === "translacao") {
             console.log('translacao');
 
