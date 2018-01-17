@@ -301,88 +301,96 @@ class InterfaceGrafica {
         this.draw();
     }
 
-    preencherScanLine(verticesPoligono, pixelsPoligono, color) {
+    listToMatrix(list, elementsPerSubArray) {
+        var matrix = [], i, k;
+
+        for (i = 0, k = -1; i < list.length; i++) {
+            if (i % elementsPerSubArray === 0) {
+                k++;
+                matrix[k] = [];
+            }
+
+            matrix[k].push(list[i]);
+        }
+
+        return matrix;
+    }
+
+    ajustarPontosIntersecao(pontosIntersecao) {
+        let matriz = this.listToMatrix(pontosIntersecao, 2);
+
+        if (matriz.every((par) => par[0].x === par[1].x && par[0].y === par[1].y)) {
+            return pontosIntersecao.slice(1, pontosIntersecao.length - 1);
+        } else {
+            return pontosIntersecao
+        }
+    }
+
+    preencherScanLine(verticesPoligono, color) {
         const yMax = Math.max(...(verticesPoligono.map(ponto => ponto.y)));
         const yMin = Math.min(...(verticesPoligono.map(ponto => ponto.y)));
-        const xMax = Math.max(...(verticesPoligono.map(ponto => ponto.x)));
-        const xMin = Math.min(...(verticesPoligono.map(ponto => ponto.x)));
-
-        function isPontoDentroPoligono(pixel) {
-            let numberOfInteractions = 0;
-
-            for (let x = xMin; x <= pixel.x; x++) {
-                if (isPixelParteAresta(x, pixel.y)) {
-                    numberOfInteractions += 1;
-                }
-            }
-
-            console.log(numberOfInteractions);
-        }
-
-        function isPixelParteAresta(x, y) {
-            return pixelsPoligono.some(pixel => pixel.x === x && pixel.y === y)
-        }
-
-        function isVertice(ponto) {
-            return verticesPoligono.some(pixel => pixel.x === ponto.x && pixel.y === ponto.y)
-        }
-
-        function existemPontosEntreIntersecoes(p1, p2) {
-            console.log('existemPontosEntreIntersecoes');
-            console.log(p1);
-            console.log(p2);
-
-            for (let x = p1.x + 1; x < p2.x; x++) {
-                console.log('isPontoDentroPoligono| x: ' + x + " | y: " + p1.y);
-                console.log(isPontoDentroPoligono({x: x, y: p1.y}));
-            }
-
-            return pixelsPoligono.some(pixel => pixel.y === p1.y && pixel.x > p1.x && pixel.x < p2.x)
-        }
 
         console.log(verticesPoligono);
-        console.log(pixelsPoligono);
 
+        // 1º Passo = Construir a Edge Table
+        let tabelaArestas = [];
 
+        for (let i = 0; i < verticesPoligono.length; i++) {
+            let k = (i + 1) % verticesPoligono.length;
 
-        // Passar o ScanLine
+            const verticeInicialAresta = verticesPoligono[i];
+            const verticeFinalAresta = verticesPoligono[k];
 
-        for (let yVarredura = yMin + 1; yVarredura < yMax; yVarredura++) {
-            let pontosIntersecao = [];
+            let dadosAresta = {
+                yMin: Math.min(verticeInicialAresta.y, verticeFinalAresta.y),
+                yMax: Math.max(verticeInicialAresta.y, verticeFinalAresta.y),
+                xMin: Math.min(verticeInicialAresta.x, verticeFinalAresta.x),
+                xMax: Math.max(verticeInicialAresta.x, verticeFinalAresta.x),
+                inversoSlope: (verticeFinalAresta.x - verticeInicialAresta.x) / (verticeFinalAresta.y - verticeInicialAresta.y),
+            };
 
-            console.log(">> Analisando linha " + yVarredura);
-
-            for (let xVarredura = xMin; xVarredura <= xMax; xVarredura++) {
-                if (pixelsPoligono.some(ponto => ponto.x === xVarredura && ponto.y === yVarredura)) {
-                    pontosIntersecao.push({x: xVarredura, y: yVarredura});
+            for (let vertice of [verticeInicialAresta, verticeFinalAresta]) {
+                if (vertice.y === dadosAresta.yMin) {
+                    dadosAresta.xParaYMin = vertice.x
                 }
             }
 
-            if (pontosIntersecao.length > 1) {
-                console.log('>> Deveria desenhar linha;');
-                console.log(pontosIntersecao);
+            tabelaArestas.push(dadosAresta);
+        }
 
-                if (pontosIntersecao.length % 2 === 0) {
-                    while (pontosIntersecao.length > 0) {
-                        const p1 = pontosIntersecao.shift();
-                        const p2 = pontosIntersecao.shift();
+        console.log('>> Tabela Arestas <<');
+        console.table(tabelaArestas);
 
-                        console.log('Existem pontos: ' + existemPontosEntreIntersecoes(p1, p2));
+        let intersecoes = [];
 
-                        this.desenharLinhaBresenham(p1.x, p1.y,
-                            p2.x, p2.y, color, false, false);
-                    }
-                } else {
-                    for (let i = 0; i < pontosIntersecao.length - 1; i++) {
-                        const p1 = pontosIntersecao[i];
-                        const p2 = pontosIntersecao[i + 1];
+        // 2º Passo = identificar as diversas interseções com a linha de varredura
+        for (let yVarredura = yMin + 1; yVarredura < yMax; yVarredura++) {
+            let intersecoesLinha = [];
 
-                        console.log('Existem pontos: ' + existemPontosEntreIntersecoes(p1, p2));
+            for (let dadosAresta of tabelaArestas) {
+                let x = dadosAresta.inversoSlope * (yVarredura - dadosAresta.yMin) + dadosAresta.xParaYMin;
 
-                        this.desenharLinhaBresenham(p1.x, p1.y,
-                            p2.x, p2.y, color, false, false);
-                    }
+                if (x >= dadosAresta.xMin && x <= dadosAresta.xMax && yVarredura >= dadosAresta.yMin && yVarredura <= dadosAresta.yMax) {
+                    intersecoesLinha.push({x: x, y: yVarredura});
                 }
+            }
+
+            // Ordenando os pontos...
+            intersecoesLinha.sort((a, b) => a.x - b.x);
+
+            intersecoes.push(intersecoesLinha);
+        }
+
+        // 3º Passo = Traçar as linhas a partir dos pontos de interseção
+        for (let pontosIntersecao of intersecoes) {
+            let pontos = this.ajustarPontosIntersecao(pontosIntersecao).slice(0);
+
+            while (pontos.length > 0) {
+                const p1 = pontos.shift();
+                const p2 = pontos.shift();
+
+                this.desenharLinhaBresenham(Math.round(p1.x), Math.round(p1.y),
+                    Math.round(p2.x), Math.round(p2.y), color, false, false);
             }
         }
 
@@ -848,7 +856,6 @@ $(function () {
     let dadosPreenchimentoScanline = {
         poligono: {
             vertices: [],
-            pixels: [],
             isPronto: false
         },
     };
@@ -891,14 +898,12 @@ $(function () {
                         vertices.pop();
 
                         dadosPreenchimentoScanline.poligono.isPronto = true;
-
-                        dadosPreenchimentoScanline.poligono.pixels = interfaceGrafica.getPixelsSelecionados(ultimoVerticeInserido.x, ultimoVerticeInserido.y);
                     }
                 }
             } else {
                 const color = "#" + $("#colorScanline").val();
 
-                interfaceGrafica.preencherScanLine(dadosPreenchimentoScanline.poligono.vertices, dadosPreenchimentoScanline.poligono.pixels, color);
+                interfaceGrafica.preencherScanLine(dadosPreenchimentoScanline.poligono.vertices, color);
             }
         } else if (interfaceGrafica.telaAtiva === "bresenham") {
             if (pixelsSelecionados.length >= 2) {
