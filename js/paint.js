@@ -6,7 +6,17 @@ class InterfaceGrafica {
         this.frameBuffer = new FrameBuffer(numeroQuadradosPorLinha);
         this.canvasDiv = canvasDiv;
         this.telaAtiva = "";
-        this.desenharCanvasInicial()
+        this.desenharCanvasInicial();
+        this.pixelsCubo = [
+            {x: 0, y: 0, z: 0},
+            {x: 20, y: 0, z: 0},
+            {x: 0, y: 20, z: 0},
+            {x: 20, y: 20, z: 0},
+            {x: 0, y: 0, z: 20},
+            {x: 20, y: 0, z: 20},
+            {x: 20, y: 20, z: 20},
+            {x: 0, y: 20, z: 20},
+        ];
     }
 
     desenharPonto(x, y, color = "#64b5f6") {
@@ -719,6 +729,168 @@ class InterfaceGrafica {
         }
 
         return [];
+    }
+
+    projecaoParalelaObliqua(fator = 1) {
+        // Fator pode ser Cavalier (1) ou Cabinet (1/2). Por default, escolhemos Cavalier
+
+        const anguloProjecao = this.grausParaRadianos(45);
+
+        const matrizProjecao = math.matrix(
+            [
+                [1, 0, fator * Math.cos(anguloProjecao), 0],
+                [0, 1, fator * Math.sin(anguloProjecao), 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        );
+
+        for (const pixel of this.pixelsCubo) {
+            let [newX, newY, z, whoCares] = math.multiply(matrizProjecao, [[pixel.x], [pixel.y], [pixel.z], [1]])._data;
+
+            console.log(newX);
+            console.log(newY);
+            console.log(z);
+
+            newX = Math.round(newX[0]);
+            newY = Math.round(newY[0]);
+
+            console.log('--------');
+
+            this.frameBuffer.setPixel(newX, newY, "#000000");
+        }
+
+        this.draw();
+    }
+
+    projecaoNoPlanoXY(Tz = 0) {
+        const matrizProjecao = math.matrix(
+            [
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 0, Tz],
+                [0, 0, 0, 1],
+            ]
+        );
+
+        let pixelsProjecao = [];
+
+        for (const pixel of this.pixelsCubo) {
+            const [newX, newY, z, whoCares] = math.multiply(matrizProjecao, [[pixel.x], [pixel.y], [pixel.z], [1]])._data;
+
+            console.log(newX);
+            console.log(newY);
+            console.log(z);
+            console.log('--------');
+
+            this.frameBuffer.setPixel(Math.round(newX[0]), Math.round(newY[0]), "#000000");
+
+            pixelsProjecao.push(pixel);
+        }
+
+        for (let pixel of pixelsProjecao) {
+            for (let pixel2 of pixelsProjecao) {
+                if ((pixel.x === pixel2.x) || (pixel.y === pixel2.y)) {
+                    this.desenharLinhaBresenham(pixel.x, pixel.y, pixel2.x, pixel2.y, "#64b5f6", false)
+                }
+            }
+        }
+
+        this.draw();
+    }
+
+    projecaoNoPlanoYZ(Tx) {
+        const pixelsCubo = [
+            {x: 0, y: 0, z: 0},
+            {x: 20, y: 0, z: 0},
+            {x: 0, y: 20, z: 0},
+            {x: 20, y: 20, z: 0},
+            {x: 0, y: 0, z: -20},
+            {x: 20, y: 0, z: -20},
+            {x: 20, y: 20, z: -20},
+            {x: 0, y: 20, z: -20},
+        ];
+
+        const matrizProjecao = math.matrix(
+            [
+                [0, 0, 0, Tx],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        );
+
+        let pixelsProjecao = [];
+
+        for (const pixel of pixelsCubo) {
+            const [newX, newY, z, whoCares] = math.multiply(matrizProjecao, [[pixel.x], [pixel.y], [pixel.z], [1]])._data;
+
+            console.log(newX);
+            console.log(newY);
+            console.log(z);
+            console.log('--------');
+
+            // this.frameBuffer.setPixel(Math.round(newX[0]), Math.round(newY[0]), "#000000");
+
+            pixelsProjecao.push(pixel);
+        }
+
+        /*for (let pixel of pixelsProjecao) {
+            for (let pixel2 of pixelsProjecao) {
+                if ((pixel.x === pixel2.x) || (pixel.y === pixel2.y)) {
+                    this.desenharLinhaBresenham(pixel.x, pixel.y, pixel2.x, pixel2.y, "#64b5f6", false)
+                }
+            }
+        }*/
+
+        this.draw();
+    }
+
+    projecaoNoPlanoXZ(Ty) {
+        const pixelsCubo = [
+            {x: 0, y: 0, z: 0},
+            {x: 20, y: 0, z: 0},
+            {x: 0, y: 20, z: 0},
+            {x: 20, y: 20, z: 0},
+            {x: 0, y: 0, z: -20},
+            {x: 20, y: 0, z: -20},
+            {x: 20, y: 20, z: -20},
+            {x: 0, y: 20, z: -20},
+        ];
+
+        const matrizProjecao = math.matrix(
+            [
+                [1, 0, 0, 0],
+                [0, 0, 0, Ty],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        );
+
+        let pixelsProjecao = [];
+
+        for (const pixel of pixelsCubo) {
+            const [newX, newY, z, whoCares] = math.multiply(matrizProjecao, [[pixel.x], [pixel.y], [pixel.z], [1]])._data;
+
+            console.log(newX);
+            console.log(newY);
+            console.log(z);
+            console.log('--------');
+
+            // this.frameBuffer.setPixel(Math.round(newX[0]), Math.round(newY[0]), "#000000");
+
+            pixelsProjecao.push(pixel);
+        }
+
+        /*for (let pixel of pixelsProjecao) {
+            for (let pixel2 of pixelsProjecao) {
+                if ((pixel.x === pixel2.x) || (pixel.y === pixel2.y)) {
+                    this.desenharLinhaBresenham(pixel.x, pixel.y, pixel2.x, pixel2.y, "#64b5f6", false)
+                }
+            }
+        }*/
+
+        this.draw();
     }
 }
 
