@@ -32,6 +32,8 @@ class InterfaceGrafica {
         }
     }
 
+    // Bresenham
+
     desenharLinhaBresenham(x0, y0, x1, y1, color, shouldDraw = true, shouldDrawEdges = true) {
         x0 = Number(x0);
         y0 = Number(y0);
@@ -82,6 +84,12 @@ class InterfaceGrafica {
         pixels.push([x, y]);
 
         for (x = x0 + 1; x <= x1; x++) {
+            console.log('X: ');
+            console.log(x);
+            console.log('e: ');
+            console.log(e);
+            console.log('----------');
+
             if (e >= 0) {
                 y += 1;
                 e -= 1;
@@ -134,6 +142,8 @@ class InterfaceGrafica {
         }
     }
 
+    // Círculo
+
     desenharCirculo(inputX, inputY, raio) {
         inputX = Number(inputX);
         inputY = Number(inputY);
@@ -152,8 +162,6 @@ class InterfaceGrafica {
 
         pixelsPrimeiroOctante.push([x, y]);
 
-        // this.desenharPonto(x, y);
-
         while (x < y) {
             x++;
 
@@ -163,8 +171,6 @@ class InterfaceGrafica {
                 y--;
                 p += (2 * x) - (2 * y) + 5
             }
-
-            // this.desenharPonto(x, y);
 
             pixelsPrimeiroOctante.push([x, y]);
         }
@@ -203,6 +209,7 @@ class InterfaceGrafica {
         for (var i = 0; i < pixelsToDraw.length; i++) {
             var [elemento_x, elemento_y] = pixelsToDraw[i];
 
+            // Como foi feito o deslocamento para (0, 0), precisamos realizar o deslocamento de volta
             elemento_x += inputX;
             elemento_y += inputY;
 
@@ -212,88 +219,7 @@ class InterfaceGrafica {
         this.draw();
     }
 
-    performAndOperation(c1, c2) {
-        let result = "";
-
-        for (let i = 0; i < c1.length; i++) {
-            result += String(Number(c1[i]) * Number(c2[i]))
-        }
-
-        return result;
-    }
-
-    recorteLinhaCohenSutherland(p1, p2, x_min, x_max, y_min, y_max) {
-        var x, y;
-        var x0 = Number(p1[0]), y0 = Number(p1[1]);
-        var x1 = Number(p2[0]), y1 = Number(p2[1]);
-
-        x_min = Number(x_min);
-        x_max = Number(x_max);
-        y_min = Number(y_min);
-        y_max = Number(y_max);
-
-        var c1 = this.mkcode(x0, y0, x_min, x_max, y_min, y_max);
-        var c2 = this.mkcode(x1, y1, x_min, x_max, y_min, y_max);
-
-        if (c1 === "0000" && c2 === "0000") {
-            this.reset();
-            this.desenharLinhaBresenham(x0, y0, x1, y1);
-        } else if (this.performAndOperation(c1, c2) !== "0000") {
-            this.reset();
-            alert('Linha totalmente fora');
-        } else {
-            var pontoFora = (c1 !== "0000") ? c1 : c2;
-
-            if (pontoFora[0] === "1") {
-                /* Descartar topo */
-                x = x0 + (x1 - x0) * (y_max - y0) / (y1 - y0);
-                y = y_max;
-            } else if (pontoFora[1] === "1") {
-                /* Descartar embaixo */
-                x = x0 + (x1 - x0) * (y_min - y0) / (y1 - y0);
-                y = y_min;
-            } else if (pontoFora[2] === "1") {
-                /* Descartar direita */
-                y = y0 + (y1 - y0) * (x_max - x0) / (x1 - x0);
-                x = x_max;
-            } else if (pontoFora[3] === "1") {
-                /* Descartar esquerda */
-                y = y0 + (y1 - y0) * (x_min - x0) / (x1 - x0);
-                x = x_min;
-            }
-
-            if (pontoFora == c1) {
-                x0 = Math.round(x);
-                y0 = Math.round(y);
-            } else {
-                x1 = Math.round(x);
-                y1 = Math.round(y);
-            }
-
-            this.recorteLinhaCohenSutherland([x0, y0], [x1, y1], x_min, x_max, y_min, y_max);
-        }
-    }
-
-    mkcode(x, y, x_min, x_max, y_min, y_max) {
-        x = Number(x);
-        y = Number(y);
-
-        var code = '';
-        code += this.sign(y_max - y);
-        code += this.sign(y - y_min);
-        code += this.sign(x_max - x);
-        code += this.sign(x - x_min);
-
-        return code;
-    }
-
-    sign(n) {
-        if (n >= 0) {
-            return '0';
-        }
-
-        return '1';
-    }
+    // Preenchimento (Recursivo)
 
     preencher(x, y, color, edgeColor = "#64b5f6") {
         this.floodFill(x, y, color, edgeColor);
@@ -301,30 +227,30 @@ class InterfaceGrafica {
         this.draw();
     }
 
-    listToMatrix(list, elementsPerSubArray) {
-        var matrix = [], i, k;
+    floodFill(x, y, color, edgeColor = "#64b5f6") {
+        x = Number(x);
+        y = Number(y);
 
-        for (i = 0, k = -1; i < list.length; i++) {
-            if (i % elementsPerSubArray === 0) {
-                k++;
-                matrix[k] = [];
-            }
+        const currentColor = this.frameBuffer.getPixel(x, y);
 
-            matrix[k].push(list[i]);
-        }
+        if (currentColor && currentColor !== edgeColor && currentColor !== color) {
+            this.desenharPonto(x, y, color);
 
-        return matrix;
-    }
+            // Pixel à direta
+            this.floodFill(x + 1, y, color, edgeColor);
 
-    ajustarPontosIntersecao(pontosIntersecao) {
-        let matriz = this.listToMatrix(pontosIntersecao, 2);
+            // Pixel acima
+            this.floodFill(x, y + 1, color, edgeColor);
 
-        if (matriz.every((par) => par[0].x === par[1].x && par[0].y === par[1].y)) {
-            return pontosIntersecao.slice(1, pontosIntersecao.length - 1);
-        } else {
-            return pontosIntersecao
+            // Pixel à esquerda
+            this.floodFill(x - 1, y, color, edgeColor);
+
+            // Pixel abaixo
+            this.floodFill(x, y - 1, color, edgeColor);
         }
     }
+
+    // Preenchimento (Scanline)
 
     preencherScanLine(verticesPoligono, color) {
         const yMax = Math.max(...(verticesPoligono.map(ponto => ponto.y)));
@@ -333,30 +259,7 @@ class InterfaceGrafica {
         console.log(verticesPoligono);
 
         // 1º Passo = Construir a Edge Table
-        let tabelaArestas = [];
-
-        for (let i = 0; i < verticesPoligono.length; i++) {
-            let k = (i + 1) % verticesPoligono.length;
-
-            const verticeInicialAresta = verticesPoligono[i];
-            const verticeFinalAresta = verticesPoligono[k];
-
-            let dadosAresta = {
-                yMin: Math.min(verticeInicialAresta.y, verticeFinalAresta.y),
-                yMax: Math.max(verticeInicialAresta.y, verticeFinalAresta.y),
-                xMin: Math.min(verticeInicialAresta.x, verticeFinalAresta.x),
-                xMax: Math.max(verticeInicialAresta.x, verticeFinalAresta.x),
-                inversoSlope: (verticeFinalAresta.x - verticeInicialAresta.x) / (verticeFinalAresta.y - verticeInicialAresta.y),
-            };
-
-            for (let vertice of [verticeInicialAresta, verticeFinalAresta]) {
-                if (vertice.y === dadosAresta.yMin) {
-                    dadosAresta.xParaYMin = vertice.x
-                }
-            }
-
-            tabelaArestas.push(dadosAresta);
-        }
+        let tabelaArestas = this.construirTabelaArestas(verticesPoligono);
 
         console.log('>> Tabela Arestas <<');
         console.table(tabelaArestas);
@@ -397,30 +300,358 @@ class InterfaceGrafica {
         this.draw();
     }
 
-    floodFill(x, y, color, edgeColor = "#64b5f6") {
+    construirTabelaArestas(verticesPoligono) {
+        let tabelaArestas = [];
+
+        for (let i = 0; i < verticesPoligono.length; i++) {
+            let k = (i + 1) % verticesPoligono.length;
+
+            const verticeInicialAresta = verticesPoligono[i];
+            const verticeFinalAresta = verticesPoligono[k];
+
+            let dadosAresta = {
+                yMin: Math.min(verticeInicialAresta.y, verticeFinalAresta.y),
+                yMax: Math.max(verticeInicialAresta.y, verticeFinalAresta.y),
+                xMin: Math.min(verticeInicialAresta.x, verticeFinalAresta.x),
+                xMax: Math.max(verticeInicialAresta.x, verticeFinalAresta.x),
+                inversoSlope: (verticeFinalAresta.x - verticeInicialAresta.x) / (verticeFinalAresta.y - verticeInicialAresta.y),
+            };
+
+            for (let vertice of [verticeInicialAresta, verticeFinalAresta]) {
+                if (vertice.y === dadosAresta.yMin) {
+                    dadosAresta.xParaYMin = vertice.x
+                }
+            }
+
+            tabelaArestas.push(dadosAresta);
+        }
+
+        return tabelaArestas;
+    }
+
+    ajustarPontosIntersecao(pontosIntersecao) {
+        let matriz = this.listToMatrix(pontosIntersecao, 2);
+
+        if (matriz.every((par) => par[0].x === par[1].x && par[0].y === par[1].y)) {
+            return pontosIntersecao.slice(1, pontosIntersecao.length - 1);
+        } else {
+            return pontosIntersecao
+        }
+    }
+
+    // Recorte de Linha
+
+    recorteLinhaCohenSutherland(p1, p2, x_min, x_max, y_min, y_max) {
+        var x, y;
+        var x0 = Number(p1[0]), y0 = Number(p1[1]);
+        var x1 = Number(p2[0]), y1 = Number(p2[1]);
+
+        x_min = Number(x_min);
+        x_max = Number(x_max);
+        y_min = Number(y_min);
+        y_max = Number(y_max);
+
+        // 1º Passo = Definir um código binário para os pontos da reta
+
+        // Gera o código binário para o p1
+        let c1 = this.mkcode(x0, y0, x_min, x_max, y_min, y_max);
+
+        // Gera o código binário para o p2
+        let c2 = this.mkcode(x1, y1, x_min, x_max, y_min, y_max);
+
+        // 2º Passo = Verificar se a linha está totalmente dentro ou totalmente fora
+        if ((c1 | c2) === 0) {
+            // Totalmente dentro
+            this.reset();
+            this.desenharLinhaBresenham(x0, y0, x1, y1);
+        } else if ((c1 & c2) !== 0) {
+            // Totalmente fora
+            // this.reset();
+            alert('Linha totalmente fora');
+        } else {
+            // 3º Passo = Calcular a interseção (𝑝𝑖) da reta com a linha da tela na qual ocorre a primeira diferença
+            // bits dos pontos
+
+            const pontoFora = (c1 !== 0) ? c1 : c2;
+
+            if (this.isNBitIgual1(pontoFora, 1)) {
+                // Descartar topo
+                x = x0 + (x1 - x0) * (y_max - y0) / (y1 - y0);
+                y = y_max;
+            } else if (this.isNBitIgual1(pontoFora, 2)) {
+                // Descartar embaixo
+                x = x0 + (x1 - x0) * (y_min - y0) / (y1 - y0);
+                y = y_min;
+            } else if (this.isNBitIgual1(pontoFora, 3)) {
+                // Descartar direita
+                y = y0 + (y1 - y0) * (x_max - x0) / (x1 - x0);
+                x = x_max;
+            } else if (this.isNBitIgual1(pontoFora, 4)) {
+                // Descartar esquerda
+                y = y0 + (y1 - y0) * (x_min - x0) / (x1 - x0);
+                x = x_min;
+            }
+
+            if (pontoFora === c1) {
+                x0 = Math.round(x);
+                y0 = Math.round(y);
+            } else {
+                x1 = Math.round(x);
+                y1 = Math.round(y);
+            }
+
+            this.recorteLinhaCohenSutherland([x0, y0], [x1, y1], x_min, x_max, y_min, y_max);
+        }
+    }
+
+    mkcode(x, y, x_min, x_max, y_min, y_max) {
         x = Number(x);
         y = Number(y);
 
-        var current = this.frameBuffer.getPixel(x, y);
+        let binaryCode = 0;
 
-        if (current && current != edgeColor && current != color) {
-            this.desenharPonto(x, y, color);
-            this.floodFill(x + 1, y, color, edgeColor);
-            this.floodFill(x, y + 1, color, edgeColor);
-            this.floodFill(x - 1, y, color, edgeColor);
-            this.floodFill(x, y - 1, color, edgeColor);
+        if (this.sign(y_max - y)) {
+            binaryCode += 1;
         }
+
+        if (this.sign(y - y_min)) {
+            binaryCode += 2;
+        }
+
+        if (this.sign(x_max - x)) {
+            binaryCode += 4;
+        }
+
+        if (this.sign(x - x_min)) {{
+            binaryCode += 8;
+        }}
+
+        return binaryCode;
+    }
+
+    isNBitIgual1(numeroBinario, posicao) {
+        return ((numeroBinario >> (posicao - 1)) & 1) === 1
+    }
+
+    sign(n) {
+        return n >= 0 ? 0 : 1;
+    }
+
+    // Recorte de Polígono (Sutherland-Hodgman)
+
+    recortarPoligonoSuthHodg(verticesSubjectPolygon, verticesClipPolygon) {
+        let list = verticesSubjectPolygon;
+
+        for (let i = 0; i < verticesClipPolygon.length; i++) {
+            let k = (i+1) % verticesClipPolygon.length;
+
+            // Recortar o Polígono sujeito para cada lado do polígono de recorte
+            let output = this.clipPolygon(list, verticesClipPolygon[i][0], verticesClipPolygon[i][1], verticesClipPolygon[k][0],
+                verticesClipPolygon[k][1]);
+
+            list = output;
+        }
+
+        this.reset();
+
+        for (let i = 0; i < list.length; i++) {
+            let k = (i+1) % list.length;
+
+            let vertice = list[i].map((ponto) => Math.round(ponto));
+
+            let proximoVertice = list[k].map((ponto) => Math.round(ponto));
+
+            this.desenharLinhaBresenham(vertice[0], vertice[1], proximoVertice[0], proximoVertice[1], "#000", false)
+        }
+
+        this.draw();
+    }
+
+    // Essa função corta todas as arestas em relação à uma aresta de recorte da área de recorte
+    // This functions clips all the edges with reference to one clip edge of clipping area
+    clipPolygon(dadosEntrada, x1, y1, x2, y2) {
+        let pontos = [];
+
+        for (let i = 0; i < dadosEntrada.length; i++) {
+
+            // i e k formam uma linha no polígono
+            let k = (i+1) % dadosEntrada.length;
+
+            let ix = dadosEntrada[i][0], iy = dadosEntrada[i][1];
+            let kx = dadosEntrada[k][0], ky = dadosEntrada[k][1];
+
+            // Calculando a posição do primeiro ponto em referência à linha de corte
+            let i_pos = (x2-x1) * (iy-y1) - (y2-y1) * (ix-x1);
+
+            // Calculando a posição do segundo ponto com referência à linha de corte
+            let k_pos = (x2-x1) * (ky-y1) - (y2-y1) * (kx-x1);
+
+            // 1º Caso : Quando ambos os pontos estão dentro
+            if (i_pos < 0  && k_pos < 0)
+            {
+                // Somente o 2º ponto é adicionado
+                pontos.push([kx, ky]);
+            }
+
+            // 2º Caso: quando apenas o primeiro ponto está fora
+            else if (i_pos >= 0  && k_pos < 0)
+            {
+                // Ponto de interseção com borda e o segundo ponto são adicionados
+                pontos.push([this.x_intersect(x1, y1, x2, y2, ix, iy, kx, ky), this.y_intersect(x1, y1, x2, y2, ix, iy, kx, ky)]);
+
+                pontos.push([kx, ky]);
+            }
+
+            // 3º Caso: quando apenas o segundo ponto está fora
+            else if (i_pos < 0  && k_pos >= 0)
+            {
+                // Apenas o ponto de interseção com a borda é adicionado
+                pontos.push([this.x_intersect(x1, y1, x2, y2, ix, iy, kx, ky), this.y_intersect(x1, y1, x2, y2, ix, iy, kx, ky)]);
+            }
+
+            // 4º Caso: Quando ambos os pontos estão fora
+            else
+            {
+                // Nenhum ponto é adicionado
+            }
+        }
+
+        return pontos;
+    }
+
+    // Retorna o valor x do ponto de interseção de duas linhas
+    x_intersect(x1, y1, x2, y2,
+                x3, y3, x4, y4) {
+        let num = (x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4);
+        let den = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
+        return num/den;
+    }
+
+    // Retorna o valor y do ponto de interseção de duas linhas
+    y_intersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+        let num = (x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4);
+        let den = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
+        return num/den;
+    }
+
+    // Translação
+
+    realizarTranslacao(dadosTranslacao) {
+        console.log(dadosTranslacao);
+
+        const deltaX = Number(dadosTranslacao.xFinal) - Number(dadosTranslacao.xInicial);
+        const deltaY = Number(dadosTranslacao.yFinal) - Number(dadosTranslacao.yInicial);
+
+        for (const pixel of dadosTranslacao.pixelsSelecionados) {
+            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
+
+            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
+        }
+
+        for (const pixel of dadosTranslacao.pixelsSelecionados) {
+            const newX = pixel.x + deltaX;
+            const newY = pixel.y + deltaY;
+
+            this.frameBuffer.setPixel(newX, newY, pixel.color);
+        }
+
+        interfaceGrafica.draw();
+    }
+
+    // Rotação
+
+    realizarRotacao(pixelsSelecionados, pontoRotacao, angulo=90) {
+        // 1º Passo = Realizar translação
+
+        const deltaX = Number(pontoRotacao.x);
+        const deltaY = Number(pontoRotacao.y);
+
+        for (const pixel of pixelsSelecionados) {
+            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
+            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
+
+            pixel.x -= deltaX;
+            pixel.y -= deltaY;
+        }
+
+        // 2º Passo = Realizar a rotação e a translação de volta
+
+        const matrizRotacao = math.matrix(
+            [
+                [Math.cos(this.grausParaRadianos(angulo)), - Math.sin(this.grausParaRadianos(angulo))],
+                [Math.sin(this.grausParaRadianos(angulo)), Math.cos(this.grausParaRadianos(angulo))]
+            ]
+        );
+
+        for (const pixel of pixelsSelecionados) {
+            const [newX, newY] = math.multiply(matrizRotacao, [[pixel.x], [pixel.y]])._data;
+
+            this.frameBuffer.setPixel(Math.round(newX[0]) + deltaX, Math.round(newY[0]) + deltaY, pixel.color);
+        }
+
+        interfaceGrafica.draw();
+    }
+
+    grausParaRadianos(valorAnguloEmGraus) {
+        return valorAnguloEmGraus * (Math.PI/180)
+    }
+
+    // Escala
+    realizarEscala(pixelsSelecionados, origem, escalaX, escalaY) {
+        // 1º Passo = Realizar translação
+
+        const deltaX = Number(origem.x);
+        const deltaY = Number(origem.y);
+
+        for (const pixel of pixelsSelecionados) {
+            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
+            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
+
+            pixel.x -= deltaX;
+            pixel.y -= deltaY;
+        }
+
+        // 2º Passo = Realizar a escala e a translação de volta
+
+        const matrizEscala = math.matrix(
+            [
+                [escalaX, 0],
+                [0, escalaY]
+            ]
+        );
+
+        for (const pixel of pixelsSelecionados) {
+            const [newX, newY] = math.multiply(matrizEscala, [[pixel.x], [pixel.y]])._data;
+
+            this.frameBuffer.setPixel(Math.round(newX) + deltaX, Math.round(newY) + deltaY, pixel.color);
+        }
+
+        interfaceGrafica.draw();
+    }
+
+    // -------------
+
+    listToMatrix(list, elementsPerSubArray) {
+        var matrix = [], i, k;
+
+        for (i = 0, k = -1; i < list.length; i++) {
+            if (i % elementsPerSubArray === 0) {
+                k++;
+                matrix[k] = [];
+            }
+
+            matrix[k].push(list[i]);
+        }
+
+        return matrix;
     }
 
     draw() {
         for (var i = 0; i < this.numeroQuadradosPorLinha; i++) {
             for (var j = 0; j < this.numeroQuadradosPorLinha; j++) {
-                // var pixel = document.getElementById(i + "_" + j);
                 $("#" + i + "_" + j).animate({
                     backgroundColor: this.frameBuffer.getPixel(i, j)
-                }, 100);
-
-                // pixel.style.backgroundColor = this.frameBuffer.getPixel(i, j)
+                }, 500);
             }
         }
     }
@@ -488,295 +719,6 @@ class InterfaceGrafica {
         }
 
         return [];
-    }
-
-    realizarTranslacao(dadosTranslacao) {
-        console.log(dadosTranslacao);
-
-        const deltaX = Number(dadosTranslacao.xFinal) - Number(dadosTranslacao.xInicial);
-        const deltaY = Number(dadosTranslacao.yFinal) - Number(dadosTranslacao.yInicial);
-
-        for (const pixel of dadosTranslacao.pixelsSelecionados) {
-            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
-
-            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
-        }
-
-        for (const pixel of dadosTranslacao.pixelsSelecionados) {
-            const newX = pixel.x + deltaX;
-            const newY = pixel.y + deltaY;
-
-            this.frameBuffer.setPixel(newX, newY, pixel.color);
-        }
-
-        interfaceGrafica.draw();
-    }
-
-    grausParaRadianos(valorAnguloEmGraus) {
-        return valorAnguloEmGraus * (Math.PI/180)
-    }
-
-    realizarRotacao(pixelsSelecionados, pontoRotacao, angulo=90) {
-        // 1º Passo = Realizar translação
-
-        const deltaX = Number(pontoRotacao.x);
-        const deltaY = Number(pontoRotacao.y);
-
-        for (const pixel of pixelsSelecionados) {
-            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
-            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
-
-            pixel.x -= deltaX;
-            pixel.y -= deltaY;
-        }
-
-        // 2º Passo = Realizar a rotação e a translação de volta
-
-        for (const pixel of pixelsSelecionados) {
-            const newX = (pixel.x * Math.cos(this.grausParaRadianos(angulo))) - (pixel.y * Math.sin(this.grausParaRadianos(angulo)));
-            const newY = (pixel.x * Math.sin(this.grausParaRadianos(angulo))) + (pixel.y * Math.cos(this.grausParaRadianos(angulo)));
-
-            this.frameBuffer.setPixel(Math.round(newX) + deltaX, Math.round(newY) + deltaY, pixel.color);
-        }
-
-        interfaceGrafica.draw();
-    }
-
-    realizarEscala(pixelsSelecionados, origem, escalaX, escalaY) {
-        // 1º Passo = Realizar translação
-
-        const deltaX = Number(origem.x);
-        const deltaY = Number(origem.y);
-
-        for (const pixel of pixelsSelecionados) {
-            pixel.color = this.frameBuffer.getPixel(pixel.x, pixel.y);
-            this.frameBuffer.setPixel(pixel.x, pixel.y, this.frameBuffer.defaultColor);
-
-            pixel.x -= deltaX;
-            pixel.y -= deltaY;
-        }
-
-        let pixelsAposEscala = [];
-
-        // 2º Passo = Realizar a escala e a translação de volta
-
-        for (const pixel of pixelsSelecionados) {
-            const newX = Math.round(pixel.x * escalaX);
-            const newY = Math.round(pixel.y * escalaY);
-
-            this.frameBuffer.setPixel(Math.round(newX) + deltaX, Math.round(newY) + deltaY, pixel.color);
-
-            /*pixelsAposEscala.push({
-                x: Math.round(newX) + deltaX,
-                y: Math.round(newY) + deltaY,
-                color: pixel.color
-            })*/
-        }
-
-        console.log(pixelsAposEscala);
-
-        /*for (let i = 0; i < pixelsAposEscala.length - 1; i++) {
-            const pixel = pixelsAposEscala[i];
-            const nextPixel = pixelsAposEscala[i + 1];
-
-            console.log('>> Desenhando linha <<');
-
-            this.desenharLinhaBresenham(pixel.x, pixel.y, nextPixel.x, nextPixel.y, pixel.color, false);
-        }*/
-
-        interfaceGrafica.draw();
-    }
-
-    // Returns x-value of point of intersectipn of two
-    // lines
-    x_intersect(x1, y1, x2, y2,
-                         x3, y3, x4, y4) {
-        let num = (x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4);
-        let den = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
-        return num/den;
-    }
-
-    // Returns y-value of point of intersectipn of
-    // two lines
-    y_intersect(x1, y1, x2, y2, x3, y3, x4, y4)
-    {
-        let num = (x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4);
-        let den = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
-        return num/den;
-    }
-
-    // This functions clips all the edges w.r.t one clip
-    // edge of clipping area
-    clipp(dadosEntrada, x1, y1, x2, y2) {
-        let pontos = [];
-
-        for (let i = 0; i < dadosEntrada.length; i++) {
-
-            // i and k form a line in polygon
-            let k = (i+1) % dadosEntrada.length;
-            let ix = dadosEntrada[i][0], iy = dadosEntrada[i][1];
-            let kx = dadosEntrada[k][0], ky = dadosEntrada[k][1];
-
-            // Calculating position of first point
-            // w.r.t. clipper line
-            let i_pos = (x2-x1) * (iy-y1) - (y2-y1) * (ix-x1);
-
-            // Calculating position of second point
-            // w.r.t. clipper line
-            let k_pos = (x2-x1) * (ky-y1) - (y2-y1) * (kx-x1);
-
-            // Case 1 : When both points are inside
-            if (i_pos < 0  && k_pos < 0)
-            {
-                //Only second point is added
-                pontos.push([kx, ky]);
-            }
-
-            // Case 2: When only first point is outside
-            else if (i_pos >= 0  && k_pos < 0)
-            {
-                // Point of intersection with edge
-                // and the second point is added
-                pontos.push([this.x_intersect(x1, y1, x2, y2, ix, iy, kx, ky), this.y_intersect(x1, y1, x2, y2, ix, iy, kx, ky)]);
-
-                pontos.push([kx, ky]);
-            }
-
-
-            // Case 3: When only second point is outside
-            else if (i_pos < 0  && k_pos >= 0)
-            {
-                //Only point of intersection with edge is added
-                pontos.push([this.x_intersect(x1, y1, x2, y2, ix, iy, kx, ky), this.y_intersect(x1, y1, x2, y2, ix, iy, kx, ky)]);
-            }
-
-            // Case 4: When both points are outside
-            else
-            {
-                //No points are added
-            }
-        }
-
-        return pontos;
-    }
-
-    suthHodgClip(verticesSubjectPolygon, verticesClipPolygon) {
-        let list = verticesSubjectPolygon;
-
-        for (let i = 0; i < verticesClipPolygon.length; i++) {
-            let k = (i+1) % verticesClipPolygon.length;
-
-            // We pass the current array of vertices, it's size
-            // and the end points of the selected clipper line
-            let output = this.clipp(list, verticesClipPolygon[i][0], verticesClipPolygon[i][1], verticesClipPolygon[k][0],
-                verticesClipPolygon[k][1]);
-
-            list = output;
-        }
-
-        console.log(list);
-
-        this.reset();
-
-        for (let i = 0; i < list.length; i++) {
-            let k = (i+1) % list.length;
-
-            let vertice = list[i].map((ponto) => Math.round(ponto));
-
-            let proximoVertice = list[k].map((ponto) => Math.round(ponto));
-
-            this.desenharLinhaBresenham(vertice[0], vertice[1], proximoVertice[0], proximoVertice[1], "#000", false)
-        }
-
-        console.log(list);
-
-        this.draw();
-
-        /*let ultimoVertice = outputList[outputList.length - 1];
-        ultimoVertice[0] = Math.round(ultimoVertice[0]);
-        ultimoVertice[1] = Math.round(ultimoVertice[1]);
-
-        this.desenharLinhaBresenham(ultimoVertice[0], ultimoVertice[1], outputList[0][0], outputList[0][1], "#000", false);
-
-        this.draw();*/
-
-        // Printing vertices of clipped polygon
-        /*for (let i = 0; i < verticesSubjectPolygon.length; i++) {
-            console.log(verticesSubjectPolygon[i][0]);
-            console.log(verticesSubjectPolygon[i][1]);
-            console.log('-----');
-        }*/
-    }
-
-    clip (subjectPolygon, clipPolygon) {
-        console.log(subjectPolygon);
-        console.log(clipPolygon);
-
-        var cp1, cp2, s, e;
-        var inside = function (p) {
-            return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
-        };
-        var intersection = function () {
-            var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
-                dp = [ s[0] - e[0], s[1] - e[1] ],
-                n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
-                n2 = s[0] * e[1] - s[1] * e[0],
-                n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
-            return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
-        };
-        var outputList = subjectPolygon;
-        cp1 = clipPolygon[clipPolygon.length-1];
-        for (var j in clipPolygon) {
-            var cp2 = clipPolygon[j];
-
-            console.log("Clip Polygon: ");
-            console.log(cp2);
-
-            var inputList = outputList;
-            outputList = [];
-
-            s = inputList[inputList.length - 1]; //last on the input list
-            for (var i in inputList) {
-                var e = inputList[i];
-                console.log('>> Elemento da Input List');
-                console.log(e);
-                if (inside(e)) {
-                    if (!inside(s)) {
-                        outputList.push(intersection());
-                    }
-                    outputList.push(e);
-                }
-                else if (inside(s)) {
-                    outputList.push(intersection());
-                }
-                s = e;
-            }
-            cp1 = cp2;
-        }
-
-        console.log(outputList);
-
-        for (let i = 0; i < outputList.length - 1; i++) {
-            let vertice = outputList[i];
-            vertice[0] = Math.round(vertice[0]);
-            vertice[1] = Math.round(vertice[1]);
-
-            let proximoVertice = outputList[i + 1];
-            proximoVertice[0] = Math.round(proximoVertice[0]);
-            proximoVertice[1] = Math.round(proximoVertice[1]);
-
-            this.desenharLinhaBresenham(vertice[0], vertice[1], proximoVertice[0], proximoVertice[1], "#000", false)
-        }
-
-        let ultimoVertice = outputList[outputList.length - 1];
-        ultimoVertice[0] = Math.round(ultimoVertice[0]);
-        ultimoVertice[1] = Math.round(ultimoVertice[1]);
-
-        this.desenharLinhaBresenham(ultimoVertice[0], ultimoVertice[1], outputList[0][0], outputList[0][1], "#000", false);
-
-        this.draw();
-
-        return outputList;
     }
 }
 
@@ -1016,7 +958,7 @@ $(function () {
                             console.log(dadosRecortePoligono.poligonoASerRecortado.vertices);
                             console.log(dadosRecortePoligono.poligonoDeRecorte.vertices);
 
-                            console.log(interfaceGrafica.suthHodgClip(dadosRecortePoligono.poligonoASerRecortado.vertices, dadosRecortePoligono.poligonoDeRecorte.vertices));
+                            console.log(interfaceGrafica.recortarPoligonoSuthHodg(dadosRecortePoligono.poligonoASerRecortado.vertices, dadosRecortePoligono.poligonoDeRecorte.vertices));
                         }
                     }
                 } else {
