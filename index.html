@@ -148,6 +148,10 @@
                        onclick="interfaceGrafica.ativarTela('escala');" data-toggle="list" href="#escala"
                        role="tab">Escala</a>
 
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('projecaoAxometrica');" data-toggle="list" href="#projecaoAxometrica"
+                       role="tab">Projeção Axométrica</a>
+
                 </div>
             </div>
         </div>
@@ -277,8 +281,33 @@
                             <label for="x1" class="">Fator Escala Y</label>
                         </div>
                     </div>
+                </div>
+
+                <div class="tab-pane" id="projecaoAxometrica" role="tabpanel">
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="rotacaoY" class="form-control" value="45">
+                            <label for="x1" class="">Rotação Y (º)</label>
+                        </div>
+                    </div>
+
+                    <br>
+                    <br>
+                    <br>
+
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="rotacaoX" class="form-control" value="45">
+                            <label for="x1" class="">Rotação X (º)</label>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary"
+                            onclick="interfaceGrafica.projecaoAxometrica($('#rotacaoY').val(), $('#rotacaoX').val())">Desenhar Cubo
+                    </button>
 
                 </div>
+
 
             </div>
         </div>
