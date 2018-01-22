@@ -864,10 +864,15 @@ class InterfaceGrafica {
         }
     }
 
-    projecaoParalelaObliqua(fator = 1) {
+    // Projeção Paralela Oblíqua
+
+    projecaoParalelaObliqua(fator = 1, anguloEmGraus = 45) {
+        fator = Number(fator);
+        anguloEmGraus = Number(anguloEmGraus);
+
         // Fator pode ser Cavalier (1) ou Cabinet (1/2). Por default, escolhemos Cavalier
 
-        const anguloProjecao = this.grausParaRadianos(45);
+        const anguloProjecao = this.grausParaRadianos(anguloEmGraus);
 
         const matrizProjecao = math.matrix(
             [

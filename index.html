@@ -97,6 +97,21 @@
             position: absolute;
             z-index: 2;
         }
+
+        .radio-green [type="radio"]:checked+label:after {
+            border-color: #00C851;
+            background-color: #00C851;
+        }
+        /*Gap*/
+
+        .radio-green-gap [type="radio"].with-gap:checked+label:before {
+            border-color: #00C851;
+        }
+
+        .radio-green-gap [type="radio"]:checked+label:after {
+            border-color: #00C851;
+            background-color: #00C851;
+        }
     </style>
 
 </head>
@@ -151,6 +166,10 @@
                     <a class="dropdown-item"
                        onclick="interfaceGrafica.ativarTela('projecaoAxometrica');" data-toggle="list" href="#projecaoAxometrica"
                        role="tab">Projeção Axométrica</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('projecaoParalelaObliqua');" data-toggle="list" href="#projecaoParalelaObliqua"
+                       role="tab">Projeção Paralela Oblíqua</a>
 
                 </div>
             </div>
@@ -304,6 +323,38 @@
 
                     <button type="button" class="btn btn-primary"
                             onclick="interfaceGrafica.projecaoAxometrica($('#rotacaoY').val(), $('#rotacaoX').val())">Desenhar Cubo
+                    </button>
+
+                </div>
+
+                <div class="tab-pane" id="projecaoParalelaObliqua" role="tabpanel">
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="anguloProjecao" class="form-control" value="45">
+                            <label for="x1" class="">Ângulo Projeção (º)</label>
+                        </div>
+                    </div>
+
+                    <br>
+                    <br>
+                    <br>
+
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <div class="form-group radio-green">
+                                <input name="fator" type="radio" id="radio103" checked value="0.5">
+                                <label for="radio103">Cabinet</label>
+                            </div>
+
+                            <div class="form-group radio-green">
+                                <input name="fator" type="radio" id="radio104" value="1">
+                                <label for="radio104">Cavalier</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary"
+                            onclick="interfaceGrafica.projecaoParalelaObliqua($('input[name=fator]:checked').val(), $('#anguloProjecao').val())">Desenhar Cubo
                     </button>
 
                 </div>
