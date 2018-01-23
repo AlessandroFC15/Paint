@@ -29,7 +29,7 @@
         }
 
         .header {
-            background: linear-gradient(40deg,#45cafc,#303f9f);
+            background: linear-gradient(40deg, #45cafc, #303f9f);
         }
 
         .header-title {
@@ -40,7 +40,7 @@
 
         .menu {
             display: flex;
-            background: linear-gradient(40deg,#303f9f, #45cafc);
+            background: linear-gradient(40deg, #303f9f, #45cafc);
             flex-direction: column;
             flex: 0.13;
         }
@@ -60,12 +60,13 @@
             background-color: transparent;
             border: none;
             color: white;
-            padding: 10px!important;
+            padding: 10px !important;
         }
 
         .list-group-item.active {
             background-color: #1976d2;
         }
+
         .pixel {
             flex: 1;
             border: 1px lightgrey solid;
@@ -88,6 +89,7 @@
         .md-form input {
             color: white;
         }
+
         .form-control:focus {
             color: white;
         }
@@ -98,17 +100,18 @@
             z-index: 2;
         }
 
-        .radio-green [type="radio"]:checked+label:after {
+        .radio-green [type="radio"]:checked + label:after {
             border-color: #00C851;
             background-color: #00C851;
         }
+
         /*Gap*/
 
-        .radio-green-gap [type="radio"].with-gap:checked+label:before {
+        .radio-green-gap [type="radio"].with-gap:checked + label:before {
             border-color: #00C851;
         }
 
-        .radio-green-gap [type="radio"]:checked+label:after {
+        .radio-green-gap [type="radio"]:checked + label:after {
             border-color: #00C851;
             background-color: #00C851;
         }
@@ -122,7 +125,9 @@
     <div class="row header" style="height: 63px!important;">
         <div class="col-md-2">
             <div class="btn-group">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Algoritmos</button>
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">Algoritmos
+                </button>
 
                 <div class="dropdown-menu">
                     <a class="dropdown-item" id='bresenham-option'
@@ -138,7 +143,8 @@
                        role="tab">Preenchimento (Recursivo)</a>
 
                     <a class="dropdown-item"
-                       onclick="interfaceGrafica.ativarTela('preenchimentoScanline');" data-toggle="list" href="#preenchimentoScanline"
+                       onclick="interfaceGrafica.ativarTela('preenchimentoScanline');" data-toggle="list"
+                       href="#preenchimentoScanline"
                        role="tab">Preenchimento (Scanline)</a>
 
                     <a class="dropdown-item"
@@ -164,12 +170,34 @@
                        role="tab">Escala</a>
 
                     <a class="dropdown-item"
-                       onclick="interfaceGrafica.ativarTela('projecaoAxometrica');" data-toggle="list" href="#projecaoAxometrica"
+                       onclick="interfaceGrafica.ativarTela('projecaoAxometrica');" data-toggle="list"
+                       href="#projecaoAxometrica"
                        role="tab">Projeção Axométrica</a>
 
                     <a class="dropdown-item"
-                       onclick="interfaceGrafica.ativarTela('projecaoParalelaObliqua');" data-toggle="list" href="#projecaoParalelaObliqua"
+                       onclick="interfaceGrafica.ativarTela('projecaoParalelaObliqua');" data-toggle="list"
+                       href="#projecaoParalelaObliqua"
                        role="tab">Projeção Paralela Oblíqua</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('projecaoParalelaOrtografica');" data-toggle="list"
+                       href="#projecaoParalelaOrtografica"
+                       role="tab">Projeção Paralela Ortográfica</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('projecaoPerspectivaUmPontoDeFuga');" data-toggle="list"
+                       href="#projecaoPerspectivaUmPontoDeFuga"
+                       role="tab">Projeção Perspectiva (1 Ponto de Fuga)</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('projecaoPerspectiva2PontosDeFuga');" data-toggle="list"
+                       href="#projecaoPerspectiva2PontosDeFuga"
+                       role="tab">Projeção Perspectiva (2 Pontos de Fuga)</a>
+
+                    <a class="dropdown-item"
+                       onclick="interfaceGrafica.ativarTela('projecaoPerspectiva3PontosDeFuga');" data-toggle="list"
+                       href="#projecaoPerspectiva3PontosDeFuga"
+                       role="tab">Projeção Perspectiva (3 Pontos de Fuga)</a>
 
                 </div>
             </div>
@@ -183,7 +211,8 @@
     <div class="row" style="height: 100%; background: rgba(211, 211, 211, 0.2)">
         <div class="menu">
             <div class="tab-content" style="flex: 0.4; padding: 10px; margin-top: 60px">
-                <div class="tab-pane fade show active" id="bresenhamInput" role="tabpanel" aria-labelledby="bresenham-option">
+                <div class="tab-pane fade show active" id="bresenhamInput" role="tabpanel"
+                     aria-labelledby="bresenham-option">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="md-form form-sm">
@@ -215,7 +244,8 @@
                     </div>
 
                     <button type="button" class="btn btn-primary"
-                            onclick="interfaceGrafica.desenharLinhaBresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">Desenhar
+                            onclick="interfaceGrafica.desenharLinhaBresenham($('#x0').val(), $('#y0').val(), $('#x1').val(), $('#y1').val())">
+                        Desenhar
                     </button>
                 </div>
 
@@ -255,7 +285,8 @@
 
                     <p class="text-white">Primeiramente desenhe o polígono.</p>
 
-                    <p class="text-white">Em seguida, escolha uma cor acima e clique em um pixel na tela para preencher</p>
+                    <p class="text-white">Em seguida, escolha uma cor acima e clique em um pixel na tela para
+                        preencher</p>
                 </div>
 
                 <div class="tab-pane" id="desenharLinhaRecorte" role="tabpanel">
@@ -279,7 +310,8 @@
                         </div>
                     </div>
 
-                    <p class="text-white">Clique em um objeto na tela para realizar a rotação conforme o ângulo acima</p>
+                    <p class="text-white">Clique em um objeto na tela para realizar a rotação conforme o ângulo
+                        acima</p>
                 </div>
 
                 <div class="tab-pane" id="escala" role="tabpanel">
@@ -322,7 +354,8 @@
                     </div>
 
                     <button type="button" class="btn btn-primary"
-                            onclick="interfaceGrafica.projecaoAxometrica($('#rotacaoY').val(), $('#rotacaoX').val())">Desenhar Cubo
+                            onclick="interfaceGrafica.projecaoAxometrica($('#rotacaoY').val(), $('#rotacaoX').val())">
+                        Desenhar Cubo
                     </button>
 
                 </div>
@@ -354,12 +387,110 @@
                     </div>
 
                     <button type="button" class="btn btn-primary"
-                            onclick="interfaceGrafica.projecaoParalelaObliqua($('input[name=fator]:checked').val(), $('#anguloProjecao').val())">Desenhar Cubo
+                            onclick="interfaceGrafica.projecaoParalelaObliqua($('input[name=fator]:checked').val(), $('#anguloProjecao').val())">
+                        Desenhar Cubo
                     </button>
 
                 </div>
 
+                <div class="tab-pane" id="projecaoParalelaOrtografica" role="tabpanel">
+                    <br>
+                    <br>
+                    <br>
 
+                    <button type="button" class="btn btn-primary"
+                            onclick="interfaceGrafica.projecaoParalelaOrtografica()">Desenhar Cubo
+                    </button>
+
+                </div>
+
+                <div class="tab-pane" id="projecaoPerspectivaUmPontoDeFuga" role="tabpanel">
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="distanciaProjecaoPerspectiva" class="form-control" value="10">
+                            <label for="x1" class="">Distância: </label>
+                        </div>
+                    </div>
+
+                    <br>
+                    <br>
+                    <br>
+
+                    <button type="button" class="btn btn-primary"
+                            onclick="interfaceGrafica.projecaoPerspectivaUmPontoDeFuga(Number($('#distanciaProjecaoPerspectiva').val()))">
+                        Desenhar Cubo
+                    </button>
+
+                </div>
+
+                <div class="tab-pane" id="projecaoPerspectiva2PontosDeFuga" role="tabpanel">
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <div class="form-group radio-green">
+                                <input name="eixoRotacaoPerspectiva2Pontos" type="radio" checked value="y">
+                                <label for="radio103">Rotação em Y</label>
+                            </div>
+
+                            <div class="form-group radio-green">
+                                <input name="eixoRotacaoPerspectiva2Pontos" type="radio" value="x">
+                                <label for="radio104">Rotação em X</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <br>
+
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="anguloProjecaoPerspectiva2Pontos" class="form-control" value="45">
+                            <label for="x1" class="">Ângulo Rotação (º)</label>
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="distanciaProjecaoPerspectiva2Pontos" class="form-control"
+                                   value="5">
+                            <label for="x1" class="">Distancia</label>
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <button type="button" class="btn btn-primary"
+                    onclick="interfaceGrafica.projecaoPerspectivaDoisPontosDeFuga($('input[name=eixoRotacaoPerspectiva2Pontos]:checked').val(), Number($('#anguloProjecaoPerspectiva2Pontos').val()), Number($('#distanciaProjecaoPerspectiva2Pontos').val()))">
+                        Desenhar Cubo
+                    </button>
+                </div>
+
+                <div class="tab-pane" id="projecaoPerspectiva3PontosDeFuga" role="tabpanel">
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="anguloProjecaoPerspectiva3Pontos" class="form-control" value="45">
+                            <label for="x1" class="">Ângulo Rotação (º)</label>
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <div class="col-md-12">
+                        <div class="md-form form-sm">
+                            <input type="number" id="distanciaProjecaoPerspectiva3Pontos" class="form-control"
+                                   value="5">
+                            <label for="x1" class="">Distância</label>
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <button type="button" class="btn btn-primary"
+                            onclick="interfaceGrafica.projecaoPerspectivaTresPontosDeFuga(Number($('#anguloProjecaoPerspectiva3Pontos').val()), Number($('#distanciaProjecaoPerspectiva3Pontos').val()))">
+                        Desenhar Cubo
+                    </button>
+                </div>
             </div>
         </div>
 

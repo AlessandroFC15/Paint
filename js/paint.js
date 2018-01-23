@@ -761,17 +761,10 @@ class InterfaceGrafica {
         for (const pixel of pontos3D) {
             const [newX, newY, z, whoCares] = math.multiply(matrizProjecao, [[pixel.x], [pixel.y], [pixel.z], [1]])._data;
 
-            console.log(newX);
-            console.log(newY);
-            console.log(z);
-            console.log('--------');
-
             this.frameBuffer.setPixel(Math.round(newX[0]), Math.round(newY[0]), "#000000");
 
             pixelsProjecao.push({x: Math.round(newX[0]), y: Math.round(newY[0])});
         }
-
-        console.log(pixelsProjecao);
 
         if (shouldDraw) {
             this.draw();
@@ -791,15 +784,10 @@ class InterfaceGrafica {
         let pixelsProjecao = [];
 
         for (const pixel of pontos3D) {
-            let [newX, newY, z, whoCares] = math.multiply(matrizProjecao, [[pixel.x], [pixel.y], [pixel.z], [1]])._data;
+            let [newX, newY, z, w] = math.multiply(matrizProjecao, [[pixel.x], [pixel.y], [pixel.z], [1]])._data;
 
             newX = Math.round(newX[0]);
             newY = Math.round(newY[0]);
-
-            console.log(newX);
-            console.log(newY);
-            console.log(z);
-            console.log('--------');
 
             this.frameBuffer.setPixel(newX, newY, "#000000");
 
@@ -815,7 +803,6 @@ class InterfaceGrafica {
                 }
             }
         }
-
         if (shouldDraw) {
             this.draw();
         }
@@ -838,11 +825,6 @@ class InterfaceGrafica {
 
             newX = Math.round(newX[0]);
             newY = Math.round(newY[0]);
-
-            console.log(newX);
-            console.log(newY);
-            console.log(z);
-            console.log('--------');
 
             this.frameBuffer.setPixel(newX, newY, "#000000");
 
@@ -958,6 +940,8 @@ class InterfaceGrafica {
     }
 
     ajustarPontosPorLimitesDeTela(pontos) {
+        console.log(pontos);
+
         for (let p of pontos) {
             p.x = Math.round(p.x);
             p.y = Math.round(p.y);
@@ -968,6 +952,11 @@ class InterfaceGrafica {
 
         const xMax = Math.max(...(pontos.map(ponto => ponto.x)));
         const xMin = Math.min(...(pontos.map(ponto => ponto.x)));
+
+        console.log(yMax);
+        console.log(yMin);
+        console.log(xMax);
+        console.log(xMin);
 
         let deltaY = 0;
 
@@ -997,6 +986,81 @@ class InterfaceGrafica {
             p.x += deltaX;
             p.y += deltaY;
         }
+
+        console.log(pontos);
+    }
+
+    // Projeção Perspectiva (1 Ponto de Fuga)
+
+    projecaoPerspectivaUmPontoDeFuga(d, pontos3D = this.pixelsCubo, shouldDraw=true) {
+        const matrizProjecao = math.matrix(
+            [
+                [d, 0, 0, 0],
+                [0, d, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 1, d],
+            ]
+        );
+
+        let pontos = [];
+
+        for (const pixel of pontos3D) {
+            let [xd, yd, zd, z] = math.multiply(matrizProjecao, [[pixel.x], [pixel.y], [pixel.z], [1]])._data;
+
+            console.log(xd / z);
+            console.log(yd / z);
+
+            let newX = Math.round(xd / z);
+            let newY = Math.round(yd / z);
+
+            console.log('--------');
+
+            pontos.push({x: newX, y: newY, z: Math.round(zd / z)});
+
+            if (shouldDraw) {
+                this.frameBuffer.setPixel(newX, newY, "#000000");
+            }
+        }
+
+        if (shouldDraw) {
+            this.draw();
+        }
+
+        return pontos;
+    }
+
+    projecaoPerspectivaDoisPontosDeFuga(eixoRotacao, anguloRotacaoEmGraus, d, pontos3D = this.pixelsCubo) {
+        let pontos = this.rotacaoEmTornoDe(eixoRotacao, pontos3D, anguloRotacaoEmGraus);
+
+        pontos = this.projecaoPerspectivaUmPontoDeFuga(d, pontos, false);
+
+        this.ajustarPontosPorLimitesDeTela(pontos);
+
+        console.log(pontos);
+
+        for (let pixel of pontos) {
+            this.frameBuffer.setPixel(pixel.x, pixel.y, "#000000");
+        }
+
+        this.draw()
+    }
+
+    projecaoPerspectivaTresPontosDeFuga(anguloRotacaoEmGraus, d, pontos3D = this.pixelsCubo) {
+        let pontos = this.rotacaoEmTornoDe('y', pontos3D, anguloRotacaoEmGraus);
+
+        pontos = this.rotacaoEmTornoDe('x', pontos, anguloRotacaoEmGraus);
+
+        pontos = this.projecaoPerspectivaUmPontoDeFuga(d, pontos, false);
+
+        this.ajustarPontosPorLimitesDeTela(pontos);
+
+        console.log(pontos);
+
+        for (let pixel of pontos) {
+            this.frameBuffer.setPixel(pixel.x, pixel.y, "#000000");
+        }
+
+        this.draw()
     }
 }
 
@@ -1068,7 +1132,7 @@ $(function () {
         div.style.height = y4 - y3 + 'px';
     }
 
-    var numeroQuadradosPorLinha = 40;
+    var numeroQuadradosPorLinha = 50;
     interfaceGrafica = new InterfaceGrafica(numeroQuadradosPorLinha, $(".grid"));
 
     var pixelsSelecionados = [];
